@@ -56,7 +56,7 @@ function generateDeck() {
         }
     });
 
-    actionCards.forEach((card) => {
+    moneyCards.forEach((card) => {
         for (let i = 0 ; i < card.qty ; i++) {
             deck.push(
                 {  
