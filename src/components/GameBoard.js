@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import generateDeck from '.././func/generateDeck.js';
 
 function GameBoard(props) {
 
@@ -8,7 +7,6 @@ function GameBoard(props) {
 
     useEffect(() => {
         console.log("test");
-        setDeck(generateDeck());
     }, []);
 
     useEffect(() => {
