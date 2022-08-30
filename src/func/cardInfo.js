@@ -1,4 +1,4 @@
-// not a component just a big variable that stores card info
+// arrays for info on all types of cards
 const actionCards = [
     {
         id: "dealBreaker",
@@ -213,3 +213,5 @@ const moneyCards = [
         qty: 2
     },
 ];
+
+export { actionCards, propertyCards, wildCards, rentCards, moneyCards };
