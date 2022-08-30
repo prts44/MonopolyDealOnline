@@ -1,6 +1,6 @@
 // adapted from this tutorial:
 // https://www.youtube.com/watch?v=djMy4QsPWiI&ab_channel=PedroTech
-import {generateDeck} from './generateDeck.js';
+const deck = require('./generateDeck');
 
 const express = require('express');
 const app = express();
@@ -25,7 +25,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("create_game", (data) => {
-        socket.broadcast.emit("game_start", generateDeck());
+        socket.broadcast.emit("game_start", deck.generateDeck());
     });
 });
 

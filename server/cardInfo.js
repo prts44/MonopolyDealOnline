@@ -214,4 +214,10 @@ const moneyCards = [
     },
 ];
 
-export { actionCards, propertyCards, wildCards, rentCards, moneyCards };
+module.exports = {
+    actionCards: actionCards,
+    propertyCards: propertyCards,
+    wildCards: wildCards,
+    rentCards: rentCards,
+    moneyCards: moneyCards
+}

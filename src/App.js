@@ -21,9 +21,9 @@ function App() {
 
     useEffect(() => {
         socket.on("game_start", (data) => {
-            console.log(data.deck);
+            console.log(data);
         });
-    })
+    }, [socket]);
 
     return (
         <div id="mainDiv">
