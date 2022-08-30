@@ -1,0 +1,3 @@
+function drawCard(amount, deck) {
+
+}
