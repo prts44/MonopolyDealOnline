@@ -4,6 +4,7 @@ import generateDeck from '.././func/generateDeck.js';
 function GameBoard(props) {
 
     const [deck, setDeck] = useState(null);
+    const [hand, setHand] = useState(null);
 
     useEffect(() => {
         console.log("test");
@@ -15,7 +16,9 @@ function GameBoard(props) {
     }, [deck]);
 
     return (
-        <p>Test</p>
+        <div>
+            <p>Test</p>
+        </div>
     )
 }
 

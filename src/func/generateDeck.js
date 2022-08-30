@@ -2,6 +2,8 @@ import { actionCards, propertyCards, wildCards, rentCards, moneyCards } from './
 
 function generateDeck() {
 
+    // creates a deck based on cardInfo.js and shuffles it
+    
     // honestly kind of a gross way of doing this but this function only runs once
     //  at the start of each game so it should be fine
 
@@ -66,6 +68,16 @@ function generateDeck() {
             );
         }
     });
+
+    // extremely basic shuffling algorithm which just swaps
+    //  the positions of two random values in the array 200 times
+    for (let i = 0 ; i < 200 ; i++) {
+        const rand1 = Math.floor(Math.random() * deck.length);
+        const rand2 = Math.floor(Math.random() * deck.length);
+        const temp = deck[rand1];
+        deck[rand1] = deck[rand2];
+        deck[rand2] = temp;
+    }
 
     return deck;
 }
