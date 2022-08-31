@@ -1,7 +1,7 @@
 // adapted from this tutorial:
 // https://www.youtube.com/watch?v=djMy4QsPWiI&ab_channel=PedroTech
-const deck = require('./generateDeck');
-
+const gd = require('./generateDeck');
+const dc = require('./drawCard');
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -17,6 +17,9 @@ const io = new Server(server, {
     }
 });
 
+let deck = gd.generateDeck();
+let playedPile = [];
+
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
 
@@ -25,8 +28,16 @@ io.on("connection", (socket) => {
     });
 
     socket.on("create_game", (data) => {
-        socket.broadcast.emit("game_start", deck.generateDeck());
+        socket.broadcast.emit("game_start", deck);
     });
+
+    socket.on("draw_hand", (data) => {
+        socket.broadcast.emit("view_hand", {
+            hand: dc.drawCard(5, deck),
+            deck: deck
+        });
+    });
+
 });
 
 server.listen(3001, () => {

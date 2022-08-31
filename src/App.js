@@ -13,15 +13,23 @@ function App() {
         socket.emit("create_game");
     }
 
-    useEffect(() => {
+    function drawHand() {
+        socket.emit("draw_hand");
+    }
+
+    /*useEffect(() => {
         socket.on("receive_message", (data) => {
             alert(data.message);
         });
-    }, [socket]);
+    }, [socket]);*/
 
     useEffect(() => {
         socket.on("game_start", (data) => {
             console.log(data);
+        });
+        socket.on("view_hand", (data) => {
+            console.log(data.hand);
+            console.log(data.deck);
         });
     }, [socket]);
 
@@ -31,9 +39,9 @@ function App() {
             <div id="div1">
                 <input placeholder="Message" onChange={(e) => {
                     setMessage(e.target.value);
-                }
-                }></input>
+                }}></input>
                 <button onClick={createGame}>Start Game</button>
+                <button onClick={drawHand}>Deal starting hand</button>
             </div>
         </div>
     );
