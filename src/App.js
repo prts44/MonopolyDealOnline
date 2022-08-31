@@ -22,6 +22,10 @@ function App() {
         socket.emit("request_hand");
     }
 
+    function drawCard() {
+        socket.emit("request_card_draw");
+    }
+
     /*useEffect(() => {
         socket.on("receive_message", (data) => {
             alert(data.message);
@@ -41,9 +45,18 @@ function App() {
         socket.on("receive_hand", (data) => {
             console.log(data);
         });
+        socket.on("receive_card_draw", (data) => {
+            console.log(data);
+        });
+        socket.on("receive_deck", (data) => {
+            console.log(data);
+        });
         return () => {
             socket.off("game_start");
             socket.off("view_hand");
+            socket.off("receive_hand");
+            socket.off("receive_card_draw");
+            socket.off("receive_deck");
         }
     }, [socket]);
 
@@ -55,8 +68,10 @@ function App() {
                     setMessage(e.target.value);
                 }}></input>
                 <button onClick={createGame}>Generate new deck</button>
+                <button onClick={() => {socket.emit("request_deck");}}>See the full deck</button>
                 <button onClick={drawHand}>Deal starting hand</button>
                 <button onClick={getHand}>See your hand</button>
+                <button onClick={drawCard}>Draw a card</button>
             </div>
             
         </div>
