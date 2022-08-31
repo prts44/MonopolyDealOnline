@@ -6,32 +6,6 @@ const socket = io.connect("http://localhost:3001");
 
 function App() {
 
-    const [message, setMessage] = useState("");
-    const [game, setGame] = useState();
-    const [display, setDisplay] = useState("hey");
-
-    function createGame() {
-        socket.emit("create_game");
-    }
-
-    function drawHand() {
-        socket.emit("draw_hand");
-    }
-
-    function getHand() {
-        socket.emit("request_hand");
-    }
-
-    function drawCard() {
-        socket.emit("request_card_draw");
-    }
-
-    /*useEffect(() => {
-        socket.on("receive_message", (data) => {
-            alert(data.message);
-        });
-    }, [socket]);*/
-
     useEffect(() => {
         socket.on("game_start", (data) => {
             console.log(data);
@@ -64,14 +38,11 @@ function App() {
         <div id="mainDiv">
             <GameBoard />
             <div id="div1">
-                <input placeholder="Message" onChange={(e) => {
-                    setMessage(e.target.value);
-                }}></input>
-                <button onClick={createGame}>Generate new deck</button>
+                <button onClick={() => {socket.emit("create_game");}}>Generate new deck</button>
                 <button onClick={() => {socket.emit("request_deck");}}>See the full deck</button>
-                <button onClick={drawHand}>Deal starting hand</button>
-                <button onClick={getHand}>See your hand</button>
-                <button onClick={drawCard}>Draw a card</button>
+                <button onClick={() => {socket.emit("draw_hand");}}>Deal starting hand</button>
+                <button onClick={() => {socket.emit("request_hand");}}>See your hand</button>
+                <button onClick={() => {socket.emit("request_card_draw");}}>Draw a card</button>
             </div>
             
         </div>
