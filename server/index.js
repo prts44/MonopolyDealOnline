@@ -18,7 +18,7 @@ const io = new Server(server, {
 });
 
 let deck = [];
-let playedPile = [];
+let trashPile = [];
 let players = [];
 
 // convention for events (some early ones not updated):
@@ -33,20 +33,16 @@ io.on("connection", (socket) => {
         hand: []
     });
 
-    socket.on("send_message", (data) => {
-        socket.emit("receive_message", data);
-    });
-
-    socket.on("create_game", () => {
+    socket.on("request_new_deck", () => {
         deck = gd.generateDeck();
-        socket.emit("game_start", deck);
+        socket.emit("receive_new_deck", deck);
         console.log("Generated deck");
     });
 
-    socket.on("draw_hand", (data) => {
+    socket.on("request_new_hand", (data) => {
         let playerObj = players.find((p) => p.id === socket.id);
         playerObj.hand = dc.drawCard(5, deck);
-        socket.emit("view_hand", {
+        socket.emit("receive_new_hand", {
             hand: playerObj.hand,
             deck: deck
         });
@@ -61,7 +57,10 @@ io.on("connection", (socket) => {
         let playerObj = players.find((p) => p.id === socket.id);
         const newCard = dc.drawCard(1, deck);
         playerObj.hand = playerObj.hand.concat(newCard);
-        socket.emit("receive_card_draw", newCard[0]);
+        socket.emit("receive_card_draw", {
+            newCard: newCard[0],
+            hand: playerObj.hand
+        });
     })
 
     socket.on("request_deck", (data) => {
