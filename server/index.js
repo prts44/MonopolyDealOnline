@@ -17,25 +17,44 @@ const io = new Server(server, {
     }
 });
 
-let deck = gd.generateDeck();
+let deck = ["empty"];
 let playedPile = [];
+let players = [];
+
+// convention for events:
+//  "send_x": client sends x data
+//  "receive_x": client receives x data
+//  "request_x": client asks for x data (not sending any)
 
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
-
-    socket.on("send_message", (data) => {
-        socket.broadcast.emit("receive_message", data);
+    players.push({
+        id: socket.id,
+        hand: []
     });
 
-    socket.on("create_game", (data) => {
-        socket.broadcast.emit("game_start", deck);
+    socket.on("send_message", (data) => {
+        socket.emit("receive_message", data);
+    });
+
+    socket.on("create_game", () => {
+        deck = gd.generateDeck();
+        socket.emit("game_start", deck);
+        console.log("Generated deck");
     });
 
     socket.on("draw_hand", (data) => {
-        socket.broadcast.emit("view_hand", {
-            hand: dc.drawCard(5, deck),
+        let playerObj = players.find((p) => p.id === socket.id)
+        playerObj.hand = dc.drawCard(5, deck);
+        socket.emit("view_hand", {
+            hand: playerObj.hand,
             deck: deck
         });
+    });
+
+    socket.on("request_hand", (data) => {
+        let playerObj = players.find((p) => p.id === socket.id)
+        socket.emit("receive_hand", playerObj.hand);
     });
 
 });

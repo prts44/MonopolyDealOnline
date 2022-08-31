@@ -6,11 +6,11 @@ function GameBoard(props) {
     const [hand, setHand] = useState(null);
 
     useEffect(() => {
-        console.log("test");
+        //console.log("test");
     }, []);
 
     useEffect(() => {
-        console.log(deck);
+        //console.log(deck);
     }, [deck]);
 
     return (
