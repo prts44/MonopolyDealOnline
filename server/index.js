@@ -109,7 +109,6 @@ io.on("connection", (socket) => {
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
     }
-
 });
 
 server.listen(3001, () => {

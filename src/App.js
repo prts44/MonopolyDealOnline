@@ -16,7 +16,7 @@ function App() {
     //  what card the user is trying to play and lets it handle it
     function playCard(card) {
         console.log("Callback function reached");
-        if (checkValidPlay) {
+        if (checkValidPlay(card)) {
             console.log("Validity check passed");
             socket.emit("send_play_card", card);
         } else {
@@ -27,7 +27,11 @@ function App() {
     // requires the client to have game state, which isnt implemented yet; 
     //  will otherwise do numerous checks to see if the play is valid
     function checkValidPlay(card) {
-        return true;
+        if (card == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     useEffect(() => {
