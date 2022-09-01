@@ -21,16 +21,22 @@ let deck = [];
 let trashPile = [];
 let players = [];
 
-// convention for events (some early ones not updated):
+// convention for events:
 //  "send_x": client sends x data
 //  "receive_x": client receives x data
-//  "request_x": client asks for x data without sending any
+//  "request_x": client asks for x data and/or some serverside change (does not send data itself)
 
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
+
     players.push({
         id: socket.id,
-        hand: []
+        hand: [],
+        properties: [],
+        money: 0,
+        playsRemaining: 0,
+        turn: false,
+        confirmedAction: true // used for cards which require another player to choose e.g. Forced Deal
     });
 
     socket.on("request_new_deck", () => {
@@ -65,7 +71,13 @@ io.on("connection", (socket) => {
 
     socket.on("request_deck", (data) => {
         socket.emit("receive_deck", deck);
-    })
+    });
+    
+    socket.on("request_turn", () => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.turn = true;
+        playerObj.playsRemaining = 3;
+    });
 
 });
 

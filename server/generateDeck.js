@@ -9,6 +9,8 @@ module.exports = {
         //  at the start of each game so it should be fine
 
         const deck = []; // blank array
+
+        let internalId = 0; // used for displaying the card and determining which cards are which internally
         
         cards.actionCards.forEach((card) => {
             // put a certain amount of each card into the deck
@@ -17,9 +19,11 @@ module.exports = {
                     {  
                         id: card.id,
                         name: card.name,
-                        type: "action"
+                        type: "action",
+                        internalId: internalId
                     }
                 );
+                internalId++;
             }
         });
 
@@ -31,9 +35,11 @@ module.exports = {
                         colour: card.colour,
                         canHouse: card.canHouse,
                         rent: card.rent,
-                        type: "property"
+                        type: "property",
+                        internalId: internalId
                     }
-                )
+                );
+                internalId++;
             }
         });
 
@@ -42,9 +48,11 @@ module.exports = {
                 deck.push(
                     {
                         colours: card.colours,
-                        type: "wildproperty"
+                        type: "wildproperty",
+                        internalId: internalId
                     }
-                )
+                );
+                internalId++;
             }
         });
 
@@ -53,9 +61,11 @@ module.exports = {
                 deck.push(
                     {
                         colours: card.colours,
-                        type: "rent"
+                        type: "rent",
+                        internalId: internalId
                     }
-                )
+                );
+                internalId++;
             }
         });
 
@@ -64,9 +74,11 @@ module.exports = {
                 deck.push(
                     {  
                         value: card.value,
-                        type: "money"
+                        type: "money",
+                        internalId: internalId
                     }
                 );
+                internalId++;
             }
         });
 
