@@ -33,10 +33,16 @@ io.on("connection", (socket) => {
         id: socket.id,
         hand: [],
         properties: [],
+        moneyPile: [],
         money: 0,
         playsRemaining: 0,
         turn: false,
         confirmedAction: true // used for cards which require another player to choose e.g. Forced Deal
+    });
+
+    socket.on("send_play_card", (card) => {
+        console.log("Server received data");
+        playCard(card);
     });
 
     socket.on("request_new_deck", () => {
@@ -67,7 +73,7 @@ io.on("connection", (socket) => {
             newCard: newCard[0],
             hand: playerObj.hand
         });
-    })
+    });
 
     socket.on("request_deck", (data) => {
         socket.emit("receive_deck", deck);
@@ -78,6 +84,31 @@ io.on("connection", (socket) => {
         playerObj.turn = true;
         playerObj.playsRemaining = 3;
     });
+
+    socket.on("request_money", () => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        socket.emit("receive_money", playerObj.money);
+    });
+
+    socket.on("request_money_pile", () => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        socket.emit("receive_money_pile", playerObj.moneyPile);
+    });
+
+    // i would prefer to not have this function here but this
+    //  is the only way i can think of to have cards played
+    //  interact with the game state and get the correct player
+    function playCard(card) {
+        console.log("playCard running");
+        let playerObj = players.find((p) => p.id === socket.id);
+        if (card.type === "money") {
+            console.log("Type check passed");
+            playerObj.moneyPile.push(card);
+            playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+            playerObj.money += card.value;
+        }
+        socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
+    }
 
 });
 

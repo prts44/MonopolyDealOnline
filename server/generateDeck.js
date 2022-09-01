@@ -10,7 +10,7 @@ module.exports = {
 
         const deck = []; // blank array
 
-        let internalId = 0; // used for displaying the card and determining which cards are which internally
+        let internalId = 0; // used for determining which cards are which internally (not displayed to users)
         
         cards.actionCards.forEach((card) => {
             // put a certain amount of each card into the deck
