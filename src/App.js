@@ -70,6 +70,10 @@ function App() {
         socket.on("receive_money_pile", (moneyPile) => {
             console.log(moneyPile);
         });
+        
+        socket.on("receive_properties", (properties) => {
+            console.log(properties);
+        });
 
         return () => {
             socket.off("receive_new_deck");
@@ -80,6 +84,7 @@ function App() {
             socket.off("receive_play_card");
             socket.off("receive_money");
             socket.off("receive_money_pile");
+            socket.off("receive_properties");
         }
     }, [socket]);
 
@@ -96,6 +101,7 @@ function App() {
                 <button onClick={() => {socket.emit("request_turn");}}>Make it your turn</button>
                 <button onClick={() => {socket.emit("request_money");}}>See your money</button>
                 <button onClick={() => {socket.emit("request_money_pile");}}>See your money pile</button>
+                <button onClick={() => {socket.emit("request_properties");}}>See your properties</button>
             </div>
             <Hand cards={hand} callback={playCard}/>
         </div>

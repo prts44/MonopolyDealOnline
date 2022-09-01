@@ -95,7 +95,12 @@ io.on("connection", (socket) => {
         socket.emit("receive_money_pile", playerObj.moneyPile);
     });
 
-    // i would prefer to not have this function here but this
+    socket.on("request_properties", () => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        socket.emit("receive_properties", playerObj.properties);
+    })
+
+    // i would prefer to not have these functions here but this
     //  is the only way i can think of to have cards played
     //  interact with the game state and get the correct player
     function playCard(card) {
@@ -106,9 +111,22 @@ io.on("connection", (socket) => {
             playerObj.moneyPile.push(card);
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
             playerObj.money += card.value;
+        } else if (card.type === "property") {
+            console.log("Type check passed");
+            if (playerObj.properties.filter((p) => p.colour === card.colour).length === 0) {
+                playerObj.properties.push({
+                    colour: card.colour,
+                    cards: [card],
+                    rent: card.rent
+                });
+            } else {
+                playerObj.properties[playerObj.properties.findIndex((p) => p.colour === card.colour && p.cards.length < p.rent.length)].cards.push(card);
+            }
+            playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
     }
+
 });
 
 server.listen(3001, () => {
