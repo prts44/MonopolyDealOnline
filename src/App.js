@@ -75,6 +75,10 @@ function App() {
             console.log(properties);
         });
 
+        socket.on("receive_alert_message", (msg) => {
+            alert(msg);
+        });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");

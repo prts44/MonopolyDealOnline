@@ -98,7 +98,7 @@ io.on("connection", (socket) => {
     socket.on("request_properties", () => {
         let playerObj = players.find((p) => p.id === socket.id);
         socket.emit("receive_properties", playerObj.properties);
-    })
+    });
 
     // i would prefer to not have these functions here but this
     //  is the only way i can think of to have cards played
@@ -108,7 +108,12 @@ io.on("connection", (socket) => {
         let playerObj = players.find((p) => p.id === socket.id);
         if (card.type === "money") {
             console.log("Type check passed");
-            playerObj.moneyPile.push(card);
+            playerObj.moneyPile.push(card);  
+            // this removes the card by filtering the player's hand for all
+            //  cards that don't share an internalId with the one played
+            //
+            // somewhat inefficient but hands can only
+            //  ever have 8 so it's not too bad
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
             playerObj.money += card.value;
         } else if (card.type === "property") {
@@ -127,17 +132,64 @@ io.on("connection", (socket) => {
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
         } else if (card.type === "action") {
             switch(card.id) {
+                // just say no logic:
+                // regardless of whether or not the opposing player has a just say no, they will be
+                //  asked to select it and if they want to play it. if they have no just say no,
+                //  they will still have to select an option. this is to prevent the game from
+                //  revealing the other player's hand information. if they play a just say no, the
+                //  action card player will be asked the same thing to see if they have one as well. 
+                //  if not, the deal breaker is negated. if yes, process repeats until one player
+                //  cannot play just say no.
                 case "dealBreaker":
+                    // ask player to choose another player to steal a full property from
+                    // if no other players have full properties, do not allow the card to be played
+                    // once a player is chosen, the player can choose one of their full properties to steal
                     break;
                 case "debtCollector":
+                    // ask player to choose another player to steal at least $5 from
+                    // opposing player must choose cards with total value >= 5
+                    // if the opposing player does not have enough cards to hit value >= 5,
+                    //  they give up all of their cards in play
                     break;
                 case "forcedDeal":
+                    // if no other players have property, card is not played and player is informed
+                    // ask player to choose another player to trade property with
+                    // once a player is chosen, ask player to choose which property to take
+                    // then, ask player to choose which property to give
+                    break; 
+                case "slyDeal":
+                    // if no other players have property, card is not played and player is informed
+                    // ask player to choose another player to steal a property from
+                    // once a player is chosen, ask player to choose which property to steal
                     break;
                 case "hotel":
+                    let fullPropsWithHouse = playerObj.properties.filter((p) => p.rent.length == p.cards.length && p.house == true && p.hotel == false);
+                    if (fullProps.length === 0) {
+                        socket.emit("receive_alert_message", "No full properties with house and no hotel");
+                        break;
+                    } else {
+                        // ask player to choose from a list of their full properties
+                        //  player chooses a full property with a house
+                        //  server applies house to it and removes house from their hand
+                        //  if "cancel" or something else is sent, card is not played
+                    }
                     break;
                 case "house":
+                    let fullProps = playerObj.properties.filter((p) => p.rent.length == p.cards.length && p.house == false);
+                    if (fullProps.length === 0) {
+                        socket.emit("receive_alert_message", "No full properties with no house");
+                        break;
+                    } else {
+                        // ask player to choose from a list of their full properties
+                        //  player chooses a full property
+                        //  server applies house to it and removes house from their hand
+                        //  if "cancel" or something else is sent, card is not played
+                    }
                     break;
                 case "itsMyBirthday":
+                    // set all players to "confirmedAction = false"
+                    //  ask each player to choose cards from their money pile/properties with total value >= 2
+                    //  if a player doesn't have enough to hit 2, automatically take all their played cards
                     break;
                 case "passGo":
                     playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
@@ -146,6 +198,8 @@ io.on("connection", (socket) => {
                 default:
                     // double rent and just say no will cause this since these
                     //  can only be played under certain conditions
+                    // warning message here
+                    socket.emit("receive_alert_message", "Cannot play this card on its own");
                     break;
             }
         }
