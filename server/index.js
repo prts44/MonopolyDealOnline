@@ -117,16 +117,40 @@ io.on("connection", (socket) => {
                 playerObj.properties.push({
                     colour: card.colour,
                     cards: [card],
-                    rent: card.rent
+                    rent: card.rent,
+                    house: false,
+                    hotel: false
                 });
             } else {
                 playerObj.properties[playerObj.properties.findIndex((p) => p.colour === card.colour && p.cards.length < p.rent.length)].cards.push(card);
             }
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+        } else if (card.type === "action") {
+            switch(card.id) {
+                case "dealBreaker":
+                    break;
+                case "debtCollector":
+                    break;
+                case "forcedDeal":
+                    break;
+                case "hotel":
+                    break;
+                case "house":
+                    break;
+                case "itsMyBirthday":
+                    break;
+                case "passGo":
+                    playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
+                    playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    break;
+                default:
+                    // double rent and just say no will cause this since these
+                    //  can only be played under certain conditions
+                    break;
+            }
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
     }
-
 });
 
 server.listen(3001, () => {
