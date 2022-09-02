@@ -25,6 +25,11 @@ let players = [];
 //  "send_x": client sends x data
 //  "receive_x": client receives x data
 //  "request_x": client asks for x data and/or some serverside change (does not send data itself)
+// 
+//  numbers following the events (e.g. "request_thing_1") indicates a chain of events between
+//   server and client. this is used for certain action cards. number indicates order in the chain
+//   and only cares about "x"; e.g. request_thing_3 implies the 3rd event in a chain, not
+//   necessarily the third request.
 
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
@@ -44,6 +49,15 @@ io.on("connection", (socket) => {
         console.log("Server received data");
         playCard(card);
     });
+
+    socket.on("send_dealbreaker_2", (data) => {
+        console.log(data);
+        let victimObj = players.find((p) => p.id === data.id);
+        let playerObj = players.find((p) => p.id === socket.id);
+        const stolenProp = victimObj.properties.filter((p) => p.colour === data.colour)[0];
+        victimObj.properties = victimObj.properties.filter((p) => p.colour !== data.colour);
+        playerObj.properties.push(stolenProp);
+    })
 
     socket.on("request_new_deck", () => {
         deck = gd.generateDeck();
@@ -100,6 +114,10 @@ io.on("connection", (socket) => {
         socket.emit("receive_properties", playerObj.properties);
     });
 
+    socket.on("request_game_state", () => {
+        socket.emit("receive_game_state", players);
+    });
+
     // i would prefer to not have these functions here but this
     //  is the only way i can think of to have cards played
     //  interact with the game state and get the correct player
@@ -131,6 +149,7 @@ io.on("connection", (socket) => {
             }
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
         } else if (card.type === "action") {
+            console.log("Type check passed");
             switch(card.id) {
                 // just say no logic:
                 // regardless of whether or not the opposing player has a just say no, they will be
@@ -144,6 +163,14 @@ io.on("connection", (socket) => {
                     // ask player to choose another player to steal a full property from
                     // if no other players have full properties, do not allow the card to be played
                     // once a player is chosen, the player can choose one of their full properties to steal
+                    console.log("Switch case passed");
+                    // filter players for players which have full properties
+                    let plrsWithFullSet = players.filter((plr) => plr.properties.length > 0 && plr.properties.filter((p) => p.rent.length === p.cards.length).length > 0);
+                    if (plrsWithFullSet.length === 0) {
+                        socket.emit("receive_alert_message", "No other players have full properties");
+                    } else {
+                        socket.emit("receive_dealbreaker_1", plrsWithFullSet);
+                    }
                     break;
                 case "debtCollector":
                     // ask player to choose another player to steal at least $5 from
@@ -164,7 +191,7 @@ io.on("connection", (socket) => {
                     break;
                 case "hotel":
                     let fullPropsWithHouse = playerObj.properties.filter((p) => p.rent.length == p.cards.length && p.house == true && p.hotel == false);
-                    if (fullProps.length === 0) {
+                    if (fullPropsWithHouse.length === 0) {
                         socket.emit("receive_alert_message", "No full properties with house and no hotel");
                         break;
                     } else {
