@@ -134,6 +134,34 @@ function App() {
                 }}/></div>);
         });
 
+        socket.on("receive_debtcollector_1", (plrList) => {
+            setPopupContent(<div key={"DCPlayerSelect"}><SelectionMenu 
+                items={plrList.map((p) => {
+                    return {
+                        item: p,
+                        label: p.id
+                    }})}
+                callback={(plr) => {
+                    console.log("Callback triggered");
+                    socket.emit("send_debtcollector_2", plr.id);
+                    closeModal();}}
+                /></div>);
+        });
+
+        socket.on("receive_debtcollector_3", (plrs) => {
+            console.log(plrs);
+            if (plrs.victimObj.money <= 5) {
+                alert("You lost all your cards to the Debt Collector!");
+                socket.emit("send_debtcollector_4", {
+                    props: [].concat(plrs.victimObj.properties.map((p) => {return p.cards})).flat(),
+                    money: plrs.victimObj.moneyPile,
+                    playerId: plrs.playerId
+                });
+            } else {
+                alert("Pick which cards to give away");
+            }
+        });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");

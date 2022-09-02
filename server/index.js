@@ -2,6 +2,7 @@
 // https://www.youtube.com/watch?v=djMy4QsPWiI&ab_channel=PedroTech
 const gd = require('./generateDeck');
 const dc = require('./drawCard');
+const pf = require('./propFuncs.js');
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -30,6 +31,7 @@ let players = [];
 //   server and client. this is used for certain action cards. number indicates order in the chain
 //   and only cares about "x"; e.g. request_thing_3 implies the 3rd event in a chain, not
 //   necessarily the third request.
+//  if you want to follow a full chain, search for "x_#" where # is the number and x is the data
 
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
@@ -57,7 +59,24 @@ io.on("connection", (socket) => {
         const stolenProp = victimObj.properties.filter((p) => p.colour === data.colour)[0];
         victimObj.properties = victimObj.properties.filter((p) => p.colour !== data.colour);
         playerObj.properties.push(stolenProp);
-    })
+    });
+
+    socket.on("send_debtcollector_2", (id) => {
+        console.log(id);
+        const victimObj = players.find((p) => p.id === id);
+        io.to(id).emit("receive_debtcollector_3", {
+            victimObj: victimObj,
+            playerId: socket.id
+        });
+    });
+    
+    socket.on("send_debtcollector_4", (items) => {
+        let playerObj = players.find((p) => p.id === items.playerId);
+        let victimObj = players.find((p) => p.id === socket.id); // the victim sends this event
+        playerObj.properties = pf.addProps(playerObj.properties, items.props);
+        victimObj.properties = pf.removeProps(victimObj.properties, items.props);
+
+    });
 
     socket.on("request_new_deck", () => {
         deck = gd.generateDeck();
@@ -177,6 +196,8 @@ io.on("connection", (socket) => {
                     // opposing player must choose cards with total value >= 5
                     // if the opposing player does not have enough cards to hit value >= 5,
                     //  they give up all of their cards in play
+                    console.log("Switch case passed");
+                    socket.emit("receive_debtcollector_1", players);
                     break;
                 case "forcedDeal":
                     // if no other players have property, card is not played and player is informed
