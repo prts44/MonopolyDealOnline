@@ -1,8 +1,9 @@
 import GameBoard from './components/GameBoard.js';
+import CardSelectMenu from './components/CardSelectMenu.js';
 import SelectionMenu from './components/SelectionMenu.js';
 import Hand from './components/Hand.js';
 import io from 'socket.io-client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Popup from 'reactjs-popup';
 
 const socket = io.connect("http://localhost:3001");
@@ -17,6 +18,8 @@ function App() {
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
     const [popupContent, setPopupContent] = useState(null);
+
+    const selectedCards = useRef([]);
 
     // does not actually play the card, just tells the server 
     //  what card the user is trying to play and lets it handle it
@@ -159,6 +162,27 @@ function App() {
                 });
             } else {
                 alert("Pick which cards to give away");
+                setPopupContent(<div key={"DCCardSelect"}>
+                    <CardSelectMenu plr={plrs.victimObj} callback={(cards) => {
+                        let totalValue = 0;
+                        cards.money.forEach((card) => {
+                            totalValue += card.value;
+                        });
+                        cards.props.forEach((card) => {
+                            totalValue += card.value;
+                        });
+                        if (totalValue >= 5) {
+                            socket.emit("send_debtcollector_4", {
+                                props: cards.props,
+                                money: cards.money,
+                                playerId: plrs.playerId
+                            });
+                            closeModal();
+                        } else {
+                            alert("Please select at least $5 worth of value in cards");
+                        }
+                    }}/>
+                </div>);
             }
         });
 

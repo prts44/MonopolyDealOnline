@@ -1,4 +1,5 @@
 const cards = require('./cardInfo.js');
+const { addProps } = require('./propFuncs.js');
 
 module.exports = {
     generateDeck() {
@@ -36,7 +37,8 @@ module.exports = {
                         canHouse: card.canHouse,
                         rent: card.rent,
                         type: "property",
-                        internalId: internalId
+                        internalId: internalId,
+                        value: card.value
                     }
                 );
                 internalId++;

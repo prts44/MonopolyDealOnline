@@ -20,18 +20,18 @@ module.exports = {
     },
     // returns a new array with the given property cards removed
     removeProps(arr, props) {
-        let newArr = null;
         // for each card, filter each property set to remove the card (eventually)
         // somewhat inefficient but shouldnt do that many operations on average
         props.forEach((card) => {
             arr.map((p) => console.log("a"));
-            newArr = arr.map((p) => {
+            // i dont know why this works
+            arr.map(p => {
+                console.log(p.cards.filter((c) => c.internalId !== card.internalId));
                 p.cards = p.cards.filter((c) => c.internalId !== card.internalId);
             });
             console.log(arr); 
-            console.log(newArr);
         });
 
-        return newArr;
+        return arr;
     }
 }

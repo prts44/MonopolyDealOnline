@@ -58,70 +58,80 @@ const propertyCards = [
         rent: [1, 2],
         qty: 2,
         canHouse: true,
-        names: ["Baltic Avenue", "Mediterranean Avenue"]
+        names: ["Baltic Avenue", "Mediterranean Avenue"],
+        value: 1
     },
     {
         colour: "blue",
         rent: [3, 8],
         qty: 2,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 4
     },
     {
         colour: "green",
         rent: [2, 4, 7],
         qty: 3,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 4
     },
     {
         colour: "lightblue",
         rent: [1, 2, 3],
         qty: 3,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 1
     },
     {
         colour: "orange",
         rent: [1, 3, 5],
         qty: 3,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 2
     },
     {
         colour: "purple",
         rent: [1, 2, 4],
         qty: 3,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 2
     },
     {
         colour: "black",
         rent: [1, 2, 3, 4],
         qty: 4,
         canHouse: false,
-        names: [""]
+        names: [""],
+        value: 2
     },
     {
         colour: "red",
         rent: [2, 3, 6],
         qty: 3,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 3
     },
     {
         colour: "grey",
         rent: [1, 2],
         qty: 2,
         canHouse: false,
-        names: [""]
+        names: [""],
+        value: 2
     },
     {
         colour: "yellow",
         rent: [2, 4, 6],
         qty: 3,
         canHouse: true,
-        names: [""]
+        names: [""],
+        value: 3
     },
 ];
 

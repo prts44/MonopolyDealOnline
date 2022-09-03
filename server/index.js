@@ -1,8 +1,9 @@
 // adapted from this tutorial:
 // https://www.youtube.com/watch?v=djMy4QsPWiI&ab_channel=PedroTech
-const gd = require('./generateDeck');
-const dc = require('./drawCard');
+const gd = require('./generateDeck.js');
+const dc = require('./drawCard.js');
 const pf = require('./propFuncs.js');
+const mpf = require('./moneyPileFuncs.js');
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -75,7 +76,10 @@ io.on("connection", (socket) => {
         let victimObj = players.find((p) => p.id === socket.id); // the victim sends this event
         playerObj.properties = pf.addProps(playerObj.properties, items.props);
         victimObj.properties = pf.removeProps(victimObj.properties, items.props);
-
+        playerObj.moneyPile = mpf.addMoney(playerObj.moneyPile, items.money);
+        victimObj.moneyPile = mpf.removeMoney(victimObj.moneyPile, items.money);
+        playerObj.money = getTotalMoney(items.playerId);
+        victimObj.money = getTotalMoney(socket.id);
     });
 
     socket.on("request_new_deck", () => {
@@ -166,6 +170,7 @@ io.on("connection", (socket) => {
             } else {
                 playerObj.properties[playerObj.properties.findIndex((p) => p.colour === card.colour && p.cards.length < p.rent.length)].cards.push(card);
             }
+            playerObj.money += card.value;
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
         } else if (card.type === "action") {
             console.log("Type check passed");
@@ -252,6 +257,27 @@ io.on("connection", (socket) => {
             }
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
+    }
+
+    // gets the total money a player has in their money pile + properties
+    function getTotalMoney(playerId) {
+        let playerObj = players.find((p) => p.id === playerId);
+        let money = 0;
+        // puts all played property cards into one array
+        let allProps = [];
+        playerObj.properties.map((p) => {
+            p.cards.forEach((card) => {
+                allProps.push(card);
+            });
+        });
+        allProps.forEach((card) => {
+            money += card.value;
+        });
+        playerObj.moneyPile.forEach((card) => {
+            money += card.value;
+        });
+        
+        return money;
     }
 });
 
