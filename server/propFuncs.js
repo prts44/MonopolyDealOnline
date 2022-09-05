@@ -33,5 +33,17 @@ module.exports = {
         });
 
         return arr;
+    },
+    // checks if a player has any properties
+    hasProps(player) {
+        let hasProps = false;
+        // TODO: Make this not a forEach so it can break out once a property is found
+        player.properties.forEach((p) =>{
+            console.log(p);
+            if (p.cards.length > 0) {
+                hasProps = true;
+            }
+        });
+        return hasProps;
     }
 }

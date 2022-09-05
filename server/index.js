@@ -9,6 +9,7 @@ const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const { hasProps } = require('./propFuncs.js');
 app.use(cors());
 const server = http.createServer(app);
 
@@ -80,6 +81,21 @@ io.on("connection", (socket) => {
         victimObj.moneyPile = mpf.removeMoney(victimObj.moneyPile, items.money);
         playerObj.money = getTotalMoney(items.playerId);
         victimObj.money = getTotalMoney(socket.id);
+    });
+
+    socket.on("send_forceddeal_2", (items) => {
+        let playerObj = players.find((p) => p.id === socket.id); // the taker sends this event
+        let victimObj = players.find((p) => p.id === items.victimId);
+        //console.log(playerObj);
+        //console.log(victimObj);
+        playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
+        //console.log("1");
+        victimObj.properties = pf.addProps(victimObj.properties, [items.given]);
+        //console.log("1");
+        playerObj.properties = pf.removeProps(playerObj.properties, [items.given]);
+        //console.log("1");
+        victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
+        //console.log("1");
     });
 
     socket.on("request_new_deck", () => {
@@ -209,6 +225,15 @@ io.on("connection", (socket) => {
                     // ask player to choose another player to trade property with
                     // once a player is chosen, ask player to choose which property to take
                     // then, ask player to choose which property to give
+                    let plrsWithProps = players.filter((p) => hasProps(p) && p.id !== socket.id);
+                    if (plrsWithProps.length === 0) {
+                        socket.emit("receive_alert_message", "No other players have properties");
+                    } else {
+                        socket.emit("receive_forceddeal_1", {
+                            plrList: plrsWithProps,
+                            playerObj: playerObj
+                        });
+                    }
                     break; 
                 case "slyDeal":
                     // if no other players have property, card is not played and player is informed

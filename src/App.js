@@ -186,6 +186,48 @@ function App() {
             }
         });
 
+        socket.on("receive_forceddeal_1", (data) => {
+            let rtn = {
+                victimId: null,
+                taken: null,
+                given: null
+            };
+            setPopupContent(<div key={"FDPickPlr"}><SelectionMenu 
+                items={data.plrList.map((p) => {
+                    return {
+                        item: p,
+                        label: p.id
+                    }})}
+                callback={(plr) => {
+                    console.log("Callback triggered");
+                    rtn.victimId = plr.id;
+                    setPopupContent(<div key={"FDPickPropTake"}><CardSelectMenu
+                        plr={plr}
+                        displayMoney={false}
+                        callback={(cards) => {
+                            if (cards.props.length === 1) {
+                                rtn.taken = cards.props[0];
+                                setPopupContent(<div key={"FDPickPropGive"}><CardSelectMenu
+                                    plr={data.playerObj}
+                                    displayMoney={false}
+                                    callback={(cards) => {
+                                        if (cards.props.length === 1) {
+                                            rtn.given = cards.props[0];
+                                            socket.emit("send_forceddeal_2", rtn);
+                                            closeModal();
+                                        } else {
+                                            alert("Please select only one property");
+                                        }
+                                    }}
+                                /></div>);
+                            } else {
+                                alert("Please select only one property");
+                            }
+                        }}
+                    /></div>);
+                }}/></div>);
+        });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");

@@ -40,7 +40,9 @@ function SelectionMenu(props) {
                     <label htmlFor={card.internalId}>{card.internalId}</label>
                 </span>);
             });
-            setPropDisplay(pd); 
+            if (props.displayProps) {
+                setPropDisplay(pd); 
+            }
             let md = props.plr.moneyPile.map((card) => {
                 return (<span>
                     <input 
@@ -59,7 +61,9 @@ function SelectionMenu(props) {
                     <label htmlFor={card.internalId}>{card.internalId}</label>
                 </span>);
             });
-            setMoneyDisplay(md);
+            if (props.displayMoney) {
+                setMoneyDisplay(md);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -86,6 +90,11 @@ function SelectionMenu(props) {
             }}>Select</button>
         </>
     )
+}
+
+SelectionMenu.defaultProps = {
+    displayMoney: true,
+    displayProps: true
 }
 
 export default SelectionMenu;
