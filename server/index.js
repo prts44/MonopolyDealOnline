@@ -86,16 +86,17 @@ io.on("connection", (socket) => {
     socket.on("send_forceddeal_2", (items) => {
         let playerObj = players.find((p) => p.id === socket.id); // the taker sends this event
         let victimObj = players.find((p) => p.id === items.victimId);
-        //console.log(playerObj);
-        //console.log(victimObj);
         playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
-        //console.log("1");
         victimObj.properties = pf.addProps(victimObj.properties, [items.given]);
-        //console.log("1");
         playerObj.properties = pf.removeProps(playerObj.properties, [items.given]);
-        //console.log("1");
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
-        //console.log("1");
+    });
+
+    socket.on("send_slydeal_2", (items) => {
+        let playerObj = players.find((p) => p.id === socket.id); // the taker sends this event
+        let victimObj = players.find((p) => p.id === items.victimId);
+        playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
+        victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
     });
 
     socket.on("request_new_deck", () => {
@@ -239,7 +240,17 @@ io.on("connection", (socket) => {
                     // if no other players have property, card is not played and player is informed
                     // ask player to choose another player to steal a property from
                     // once a player is chosen, ask player to choose which property to steal
-                    break;
+                    let plrsWithProps_1 = players.filter((p) => hasProps(p) && p.id !== socket.id);
+                    // i sincerely apologize for this gross variable naming
+                    if (plrsWithProps_1.length === 0) {
+                        socket.emit("receive_alert_message", "No other players have properties");
+                    } else {
+                        socket.emit("receive_slydeal_1", {
+                            plrList: plrsWithProps_1,
+                            playerObj: playerObj
+                        });
+                    }
+                    break; 
                 case "hotel":
                     let fullPropsWithHouse = playerObj.properties.filter((p) => p.rent.length == p.cards.length && p.house == true && p.hotel == false);
                     if (fullPropsWithHouse.length === 0) {
