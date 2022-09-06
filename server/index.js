@@ -45,9 +45,16 @@ io.on("connection", (socket) => {
         moneyPile: [],
         money: 0,
         playsRemaining: 0,
-        turn: false,
-        confirmedAction: true // used for cards which require another player to choose e.g. Forced Deal
+        turn: false
     });
+    // property storage:
+    //  if no colour exists, create a new array for it
+    //  if an existing one is full, create another array for it and mark it as such
+    //  TREAT FULL PROPERTY SETS AS A FULL UNBREAKABLE UNIT:
+    //  - set cannot have individuals taken via forced/sly deal
+    //  - player cannot break the set when giving it as money; they must give the full set
+    //  - houses and hotels CANNOT be removed
+
 
     socket.on("send_play_card", (card) => {
         console.log("Server received data");
@@ -97,6 +104,16 @@ io.on("connection", (socket) => {
         let victimObj = players.find((p) => p.id === items.victimId);
         playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
+    });
+
+    socket.on("send_house_2", (colour) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.properties.filter((p) => p.colour === colour)[0].house = true;
+    });
+
+    socket.on("send_hotel_2", (colour) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.properties.filter((p) => p.colour === colour)[0].hotel = true;
     });
 
     socket.on("request_new_deck", () => {
@@ -171,12 +188,14 @@ io.on("connection", (socket) => {
             //  cards that don't share an internalId with the one played
             //
             // somewhat inefficient but hands can only
-            //  ever have 8 so it's not too bad
+            //  ever have 7 so it's not too bad
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
             playerObj.money += card.value;
         } else if (card.type === "property") {
             console.log("Type check passed");
-            if (playerObj.properties.filter((p) => p.colour === card.colour).length === 0) {
+            if (playerObj.properties.filter((p) => p.colour === card.colour && p.cards.length < p.rent.length).length === 0) {
+                const intId = playerObj.properties.filter((p) => p.colour === card.colour); // used to differentiate different sets of the same colour
+                // TODO: implement intId
                 playerObj.properties.push({
                     colour: card.colour,
                     cards: [card],
@@ -252,11 +271,13 @@ io.on("connection", (socket) => {
                     }
                     break; 
                 case "hotel":
-                    let fullPropsWithHouse = playerObj.properties.filter((p) => p.rent.length == p.cards.length && p.house == true && p.hotel == false);
+                    let fullPropsWithHouse = playerObj.properties.filter((p) => p.cards.length >= p.rent.length && p.house === true && p.hotel == false);
                     if (fullPropsWithHouse.length === 0) {
                         socket.emit("receive_alert_message", "No full properties with house and no hotel");
                         break;
                     } else {
+                        socket.emit("receive_hotel_1", fullPropsWithHouse);
+                        playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                         // ask player to choose from a list of their full properties
                         //  player chooses a full property with a house
                         //  server applies house to it and removes house from their hand
@@ -264,21 +285,22 @@ io.on("connection", (socket) => {
                     }
                     break;
                 case "house":
-                    let fullProps = playerObj.properties.filter((p) => p.rent.length == p.cards.length && p.house == false);
+                    let fullProps = playerObj.properties.filter((p) => p.cards.length >= p.rent.length && p.house === false);
                     if (fullProps.length === 0) {
                         socket.emit("receive_alert_message", "No full properties with no house");
                         break;
                     } else {
+                        socket.emit("receive_house_1", fullProps);
+                        playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                         // ask player to choose from a list of their full properties
-                        //  player chooses a full property
-                        //  server applies house to it and removes house from their hand
-                        //  if "cancel" or something else is sent, card is not played
+                        // player chooses a full property
+                        // server applies house to it and removes house from their hand
+                        // if "cancel" or something else is sent, card is not played
                     }
                     break;
                 case "itsMyBirthday":
-                    // set all players to "confirmedAction = false"
-                    //  ask each player to choose cards from their money pile/properties with total value >= 2
-                    //  if a player doesn't have enough to hit 2, automatically take all their played cards
+                    // ask each player to choose cards from their money pile/properties with total value >= 2
+                    // if a player doesn't have enough to hit 2, automatically take all their played cards
                     break;
                 case "passGo":
                     playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
@@ -296,6 +318,7 @@ io.on("connection", (socket) => {
     }
 
     // gets the total money a player has in their money pile + properties
+    // TODO: change existing money calculations to use this instead
     function getTotalMoney(playerId) {
         let playerObj = players.find((p) => p.id === playerId);
         let money = 0;

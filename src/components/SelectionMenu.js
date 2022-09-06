@@ -26,8 +26,7 @@ function SelectionMenu(props) {
             console.log(error);
         }
         // force resets all radio buttons on re-render by alternating the key of the container div between 0 and 1
-        //  yes this is disgusting
-        //  no i dont know a better way to do this
+        //  i would use a better solution if i knew one
         key.current++;
         if (key.current === 2) {
             key.current = 0;

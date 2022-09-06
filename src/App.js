@@ -104,7 +104,6 @@ function App() {
 
         socket.on("receive_dealbreaker_1", (plrList) => {
             console.log(plrList);
-            // absolutely disgusting confusing mess, but:
             //  all this does is set the popup to show the list of players
             //   with full properties to display on the selection popup
             //  then, once the user selects one, it sets the popup to show
@@ -259,6 +258,32 @@ function App() {
                             }
                         }}
                     /></div>);
+                }}/></div>);
+        });
+
+        socket.on("receive_house_1", (fullProps) => {
+            setPopupContent(<div key={"HousePickSet"}><SelectionMenu 
+                items={fullProps.map((p) => {
+                    return {
+                        item: p,
+                        label: p.colour
+                    }})}
+                callback={(prop) => {
+                    socket.emit("send_house_2", prop.colour);    
+                    closeModal();
+                }}/></div>);
+        });
+
+        socket.on("receive_hotel_1", (fullPropsWithHouse) => {
+            setPopupContent(<div key={"HotelPickSet"}><SelectionMenu 
+                items={fullPropsWithHouse.map((p) => {
+                    return {
+                        item: p,
+                        label: p.colour
+                    }})}
+                callback={(prop) => {
+                    socket.emit("send_hotel_2", prop.colour);    
+                    closeModal();
                 }}/></div>);
         });
 

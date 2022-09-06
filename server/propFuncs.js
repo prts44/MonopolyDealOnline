@@ -24,7 +24,6 @@ module.exports = {
         // somewhat inefficient but shouldnt do that many operations on average
         props.forEach((card) => {
             arr.map((p) => console.log("a"));
-            // i dont know why this works
             arr.map(p => {
                 console.log(p.cards.filter((c) => c.internalId !== card.internalId));
                 p.cards = p.cards.filter((c) => c.internalId !== card.internalId);
@@ -45,5 +44,9 @@ module.exports = {
             }
         });
         return hasProps;
+    },
+    // returns all of a player's full property sets (empty array if none)
+    getFullProps(player) {
+
     }
 }
