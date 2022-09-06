@@ -136,33 +136,35 @@ function App() {
                 }}/></div>);
         });
 
-        socket.on("receive_debtcollector_1", (plrList) => {
-            setPopupContent(<div key={"DCPlayerSelect"}><SelectionMenu 
-                items={plrList.map((p) => {
+        socket.on("receive_debtcollector_1", (items) => {
+            setPopupContent(<div key={"TakeMoneyPlayerSelect"}><SelectionMenu 
+                items={items.plrList.map((p) => {
                     return {
                         item: p,
                         label: p.id
                     }})}
                 callback={(plr) => {
                     console.log("Callback triggered");
-                    socket.emit("send_debtcollector_2", plr.id);
+                    socket.emit("send_debtcollector_2", {
+                        id: plr.id,
+                        amt: items.amt
+                    });
                     closeModal();}}
                 /></div>);
         });
 
-        socket.on("receive_debtcollector_3", (plrs) => {
-            console.log(plrs);
-            if (plrs.victimObj.money <= 5) {
-                alert("You lost all your cards to the Debt Collector!");
+        socket.on("receive_debtcollector_3", (items) => {
+            if (items.victimObj.money <= items.amt) {
+                alert("You had to pay all your cards!");
                 socket.emit("send_debtcollector_4", {
-                    props: [].concat(plrs.victimObj.properties.map((p) => {return p.cards})).flat(),
-                    money: plrs.victimObj.moneyPile,
-                    playerId: plrs.playerId
+                    props: [].concat(items.victimObj.properties.map((p) => {return p.cards})).flat(),
+                    money: items.victimObj.moneyPile,
+                    playerId: items.playerId
                 });
             } else {
                 alert("Pick which cards to give away");
                 setPopupContent(<div key={"DCCardSelect"}>
-                    <CardSelectMenu plr={plrs.victimObj} callback={(cards) => {
+                    <CardSelectMenu plr={items.victimObj} callback={(cards) => {
                         let totalValue = 0;
                         cards.money.forEach((card) => {
                             totalValue += card.value;
@@ -174,7 +176,7 @@ function App() {
                             socket.emit("send_debtcollector_4", {
                                 props: cards.props,
                                 money: cards.money,
-                                playerId: plrs.playerId
+                                playerId: items.playerId
                             });
                             closeModal();
                         } else {

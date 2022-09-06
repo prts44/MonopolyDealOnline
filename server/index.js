@@ -70,12 +70,12 @@ io.on("connection", (socket) => {
         playerObj.properties.push(stolenProp);
     });
 
-    socket.on("send_debtcollector_2", (id) => {
-        console.log(id);
-        const victimObj = players.find((p) => p.id === id);
-        io.to(id).emit("receive_debtcollector_3", {
+    socket.on("send_debtcollector_2", (items) => {
+        const victimObj = players.find((p) => p.id === items.id);
+        io.to(items.id).emit("receive_debtcollector_3", {
             victimObj: victimObj,
-            playerId: socket.id
+            playerId: socket.id,
+            amt: items.amt
         });
     });
     
@@ -194,14 +194,15 @@ io.on("connection", (socket) => {
         } else if (card.type === "property") {
             console.log("Type check passed");
             if (playerObj.properties.filter((p) => p.colour === card.colour && p.cards.length < p.rent.length).length === 0) {
-                const intId = playerObj.properties.filter((p) => p.colour === card.colour); // used to differentiate different sets of the same colour
+                const intId = playerObj.properties.filter((p) => p.colour === card.colour).length; // used to differentiate different sets of the same colour
                 // TODO: implement intId
                 playerObj.properties.push({
                     colour: card.colour,
                     cards: [card],
                     rent: card.rent,
                     house: false,
-                    hotel: false
+                    hotel: false,
+                    internalId: intId
                 });
             } else {
                 playerObj.properties[playerObj.properties.findIndex((p) => p.colour === card.colour && p.cards.length < p.rent.length)].cards.push(card);
@@ -238,7 +239,7 @@ io.on("connection", (socket) => {
                     // if the opposing player does not have enough cards to hit value >= 5,
                     //  they give up all of their cards in play
                     console.log("Switch case passed");
-                    socket.emit("receive_debtcollector_1", players);
+                    requestIndividualMoney(5);
                     break;
                 case "forcedDeal":
                     // if no other players have property, card is not played and player is informed
@@ -337,6 +338,15 @@ io.on("connection", (socket) => {
         });
         
         return money;
+    }
+
+    // used for cards which ask a user to pick another user to take money from
+    function requestIndividualMoney(amt) {
+        // TODO: change names to more generic ones
+        socket.emit("receive_debtcollector_1", {
+            plrList: players,
+            amt: amt
+        });
     }
 });
 
