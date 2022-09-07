@@ -1,5 +1,5 @@
 # MonopolyDealOnline
-A digital version of the board game Monopoly Deal
+A digital version of the card game Monopoly Deal
 
 ## Progress
 ~42% done.
