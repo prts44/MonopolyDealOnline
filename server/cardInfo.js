@@ -138,35 +138,43 @@ const propertyCards = [
 const wildCards = [
     {
         colours: ["blue", "green"],
-        qty: 1
+        qty: 1,
+        victims: "all"
     },
     {
         colours: ["purple", "orange"],
-        qty: 2
+        qty: 2,
+        victims: "all"
     },
     {
         colours: ["lightblue", "brown"],
-        qty: 1
+        qty: 1,
+        victims: "all"
     },
     {
         colours: ["lightblue", "grey"],
-        qty: 1
+        qty: 1,
+        victims: "all"
     },
     {
         colours: ["black", "green"],
-        qty: 1
+        qty: 1,
+        victims: "all"
     },
     {
         colours: ["red", "yellow"],
-        qty: 2
+        qty: 2,
+        victims: "all"
     },
     {
         colours: ["grey", "black"],
-        qty: 1
+        qty: 1,
+        victims: "all"
     },
     {
         colours: ["blue", "green", "purple", "orange", "lightblue", "red", "yellow", "black", "grey"],
-        qty: 2
+        qty: 2,
+        victims: "single"
     }
 ];
 

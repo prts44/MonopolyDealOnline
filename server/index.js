@@ -38,15 +38,21 @@ let players = [];
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
 
-    players.push({
-        id: socket.id,
-        hand: [],
-        properties: [],
-        moneyPile: [],
-        money: 0,
-        playsRemaining: 0,
-        turn: false
+    // only add a player to the game if the client requests
+    socket.on("request_enter_game", () => {
+        if (players.length === 0 || players.filter((p) => p.id === socket.id).length === 0) {
+            players.push({
+                id: socket.id,
+                hand: [],
+                properties: [],
+                moneyPile: [],
+                money: 0,
+                playsRemaining: 0,
+                turn: false
+            });
+        }
     });
+
     // property storage:
     //  if no colour exists, create a new array for it
     //  if an existing one is full, create another array for it and mark it as such
@@ -54,7 +60,11 @@ io.on("connection", (socket) => {
     //  - set cannot have individuals taken via forced/sly deal
     //  - player cannot break the set when giving it as money; they must give the full set
     //  - houses and hotels CANNOT be removed
-
+    //  this differs slightly from the actual game however:
+    //  - this is a somewhat uncommon case
+    //  - i would need to seriously restructure most of the property handling again to
+    //    make it 100% accurate, which i would like to do in the future but not before
+    //    getting a 95% functional and correct version finished
 
     socket.on("send_play_card", (card) => {
         console.log("Server received data");
@@ -70,16 +80,16 @@ io.on("connection", (socket) => {
         playerObj.properties.push(stolenProp);
     });
 
-    socket.on("send_debtcollector_2", (items) => {
+    socket.on("send_takemoney_2", (items) => {
         const victimObj = players.find((p) => p.id === items.id);
-        io.to(items.id).emit("receive_debtcollector_3", {
+        io.to(items.id).emit("receive_takemoney_3", {
             victimObj: victimObj,
             playerId: socket.id,
             amt: items.amt
         });
     });
     
-    socket.on("send_debtcollector_4", (items) => {
+    socket.on("send_takemoney_4", (items) => {
         let playerObj = players.find((p) => p.id === items.playerId);
         let victimObj = players.find((p) => p.id === socket.id); // the victim sends this event
         playerObj.properties = pf.addProps(playerObj.properties, items.props);
@@ -114,6 +124,12 @@ io.on("connection", (socket) => {
     socket.on("send_hotel_2", (colour) => {
         let playerObj = players.find((p) => p.id === socket.id);
         playerObj.properties.filter((p) => p.colour === colour)[0].hotel = true;
+    });
+
+    socket.on("send_singlerent_2", (colour) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        const propSet = playerObj.properties.filter((p) => p.colour === colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
+        requestIndividualMoney(pf.calcRent(propSet));
     });
 
     socket.on("request_new_deck", () => {
@@ -195,7 +211,7 @@ io.on("connection", (socket) => {
             console.log("Type check passed");
             if (playerObj.properties.filter((p) => p.colour === card.colour && p.cards.length < p.rent.length).length === 0) {
                 const intId = playerObj.properties.filter((p) => p.colour === card.colour).length; // used to differentiate different sets of the same colour
-                // TODO: implement intId
+                // TODO: implement intId elsewhere
                 playerObj.properties.push({
                     colour: card.colour,
                     cards: [card],
@@ -313,7 +329,27 @@ io.on("connection", (socket) => {
                     // warning message here
                     socket.emit("receive_alert_message", "Cannot play this card on its own");
                     break;
+            } 
+        } else if (card.type === "rent") {
+            // get a list of all colours in the card that the player has properties for
+            const validColours = card.colours.filter((c) => playerObj.properties.filter((p) => p.colour === c).length !== 0);
+            console.log(validColours);
+            if (validColours.length === 0) {
+                socket.emit("receive_alert_message", "You do not have properties for this rent card.");
+            } else {
+                if (card.victims === "all") {
+                    socket.emit("receive_multirent_1", validColours);
+                } else {
+                    socket.emit("receive_singlerent_1", {
+                        colours: validColours,
+                        plrList: players
+                    });
+                }
             }
+        } else if (card.type === "wildproperty") {
+            console.log("wild property");
+        } else {
+            socket.emit("receive_alert_message", "How did this happen?");
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
     }
@@ -343,7 +379,7 @@ io.on("connection", (socket) => {
     // used for cards which ask a user to pick another user to take money from
     function requestIndividualMoney(amt) {
         // TODO: change names to more generic ones
-        socket.emit("receive_debtcollector_1", {
+        socket.emit("receive_takemoney_1", {
             plrList: players,
             amt: amt
         });

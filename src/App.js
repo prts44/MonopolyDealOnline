@@ -136,7 +136,7 @@ function App() {
                 }}/></div>);
         });
 
-        socket.on("receive_debtcollector_1", (items) => {
+        socket.on("receive_takemoney_1", (items) => {
             setPopupContent(<div key={"TakeMoneyPlayerSelect"}><SelectionMenu 
                 items={items.plrList.map((p) => {
                     return {
@@ -145,7 +145,7 @@ function App() {
                     }})}
                 callback={(plr) => {
                     console.log("Callback triggered");
-                    socket.emit("send_debtcollector_2", {
+                    socket.emit("send_takemoney_2", {
                         id: plr.id,
                         amt: items.amt
                     });
@@ -153,10 +153,10 @@ function App() {
                 /></div>);
         });
 
-        socket.on("receive_debtcollector_3", (items) => {
+        socket.on("receive_takemoney_3", (items) => {
             if (items.victimObj.money <= items.amt) {
                 alert("You had to pay all your cards!");
-                socket.emit("send_debtcollector_4", {
+                socket.emit("send_takemoney_4", {
                     props: [].concat(items.victimObj.properties.map((p) => {return p.cards})).flat(),
                     money: items.victimObj.moneyPile,
                     playerId: items.playerId
@@ -173,14 +173,14 @@ function App() {
                             totalValue += card.value;
                         });
                         if (totalValue >= 5) {
-                            socket.emit("send_debtcollector_4", {
+                            socket.emit("send_takemoney_4", {
                                 props: cards.props,
                                 money: cards.money,
                                 playerId: items.playerId
                             });
                             closeModal();
                         } else {
-                            alert("Please select at least $5 worth of value in cards");
+                            alert("Please select at least $" + items.amt + " worth of value in cards");
                         }
                     }}/>
                 </div>);
@@ -289,6 +289,19 @@ function App() {
                 }}/></div>);
         });
 
+        socket.on("receive_singlerent_1", (items) => {
+            setPopupContent(<div key={"RentPickColour"}><SelectionMenu 
+                items={items.colours.map((c) => {
+                    return {
+                        item: c,
+                        label: c
+                    }})}
+                callback={(c) => {
+                    socket.emit("send_singlerent_2", c);    
+                    closeModal();
+                }}/></div>);
+        });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");
@@ -318,6 +331,7 @@ function App() {
                 <button onClick={() => {socket.emit("request_money_pile");}}>See your money pile</button>
                 <button onClick={() => {socket.emit("request_properties");}}>See your properties</button>
                 <button onClick={() => {socket.emit("request_game_state");}}>See the current game state</button>
+                <button onClick={() => {socket.emit("request_enter_game");}}>Enter the game</button>
             </div>
             <Hand cards={hand} callback={playCard}/>
             <Popup open={open} closeOnDocumentClick={false} onClose={closeModal}>

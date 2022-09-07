@@ -48,5 +48,20 @@ module.exports = {
     // returns all of a player's full property sets (empty array if none)
     getFullProps(player) {
 
+    },
+    // calculates the rent value of a property set
+    calcRent(props) {
+        if (props.cards.length === 0) {
+            console.log("ERROR: Propset has no cards.");
+            return false;
+        }
+        let finalRent = props.rent[props.cards.length - 1];
+        if (props.house === true) {
+            finalRent += 3;
+        }
+        if (props.hotel === true) {
+            finalRent += 4;
+        }
+        return finalRent;
     }
 }
