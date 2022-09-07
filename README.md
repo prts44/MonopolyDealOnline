@@ -2,7 +2,7 @@
 A digital version of the board game Monopoly Deal
 
 ## Progress
-~28% done.
+~42% done.
 
 The deck, hand, and draw handling work.
 You can play property and money cards.
