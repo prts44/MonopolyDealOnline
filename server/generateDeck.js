@@ -64,7 +64,8 @@ module.exports = {
                     {
                         colours: card.colours,
                         type: "rent",
-                        internalId: internalId
+                        internalId: internalId,
+                        name: "Rent"
                     }
                 );
                 internalId++;
@@ -77,7 +78,8 @@ module.exports = {
                     {  
                         value: card.value,
                         type: "money",
-                        internalId: internalId
+                        internalId: internalId,
+                        name: "Money"
                     }
                 );
                 internalId++;

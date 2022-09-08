@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import style from '../styles/card.module.css';
 
 function Hand(props) {
 
@@ -6,13 +7,32 @@ function Hand(props) {
     const [selectedCard, setSelectedCard] = useState(null);
     const key = useRef(0);
 
+    function getCard(card) {
+        if (card.type) {
+            if (card.type === "moneya") {
+
+            } else if (card.type === "renta") {
+
+            } else if (card.type === "wildpropertya") {
+                
+            } else {
+                let cardName = "N/A";
+                if (card.name) {
+                    console.log(card.name);
+                    cardName = card.name;
+                }
+                return (<div>
+                    <input className={style.radioButton} type="radio" value={card} name="hand" id={card.internalId} onClick={() => {setSelectedCard(card)}}/>
+                    <label className={style.card} htmlFor={card.internalId}>{cardName}<br/>Type: {card.type}</label>
+                </div>);
+            }
+        }
+    }
+
     useEffect(() => {
         try {
             let d = props.cards.map((card) => {
-                return (<span>
-                    <input type="radio" value={card} name="hand" id={card.internalId} onClick={() => {setSelectedCard(card)}}/>
-                    <label htmlFor={card.internalId}>ID: {card.internalId} | Type: {card.type}</label>
-                </span>);
+                return getCard(card);
             });
             setHandDisplay(d); 
         } catch (error) {
@@ -28,7 +48,7 @@ function Hand(props) {
     }, [props.cards]);
 
     return (
-        <div key={key.current}>
+        <div className={style.hand} key={key.current}>
             {handDisplay}
             <button onClick={() => {
                 props.callback(selectedCard);

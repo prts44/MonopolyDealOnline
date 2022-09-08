@@ -1,0 +1,22 @@
+.radioButton {
+    display: none
+}
+
+.card {
+    display: flex;
+    height: 220px;
+    width: 130px;
+    text-align: center;
+    border-radius: 1px;
+    border-color: black;
+    border-style: solid;
+}
+
+.radioButton:checked ~ label{
+    background-color: red;
+}
+
+.hand {
+    display: flex;
+    flex-direction: row;
+}
