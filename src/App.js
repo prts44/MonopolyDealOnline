@@ -290,7 +290,7 @@ function App() {
         });
 
         socket.on("receive_singlerent_1", (items) => {
-            setPopupContent(<div key={"RentPickColour"}><SelectionMenu 
+            setPopupContent(<div key={"SRentPickColour"}><SelectionMenu 
                 items={items.colours.map((c) => {
                     return {
                         item: c,
@@ -298,6 +298,19 @@ function App() {
                     }})}
                 callback={(c) => {
                     socket.emit("send_singlerent_2", c);    
+                    closeModal();
+                }}/></div>);
+        });
+
+        socket.on("receive_multirent_1", (colours) => {
+            setPopupContent(<div key={"MRentPickColour"}><SelectionMenu 
+                items={colours.map((c) => {
+                    return {
+                        item: c,
+                        label: c
+                    }})}
+                callback={(c) => {
+                    socket.emit("send_multirent_2", c);    
                     closeModal();
                 }}/></div>);
         });

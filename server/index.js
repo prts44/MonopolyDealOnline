@@ -9,7 +9,7 @@ const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { hasProps } = require('./propFuncs.js');
+const { hasProps, calcRent } = require('./propFuncs.js');
 app.use(cors());
 const server = http.createServer(app);
 
@@ -60,9 +60,9 @@ io.on("connection", (socket) => {
     //  - set cannot have individuals taken via forced/sly deal
     //  - player cannot break the set when giving it as money; they must give the full set
     //  - houses and hotels CANNOT be removed
-    //  this differs slightly from the actual game however:
+    //  this differs from the actual game however:
     //  - this is a somewhat uncommon case
-    //  - i would need to seriously restructure most of the property handling again to
+    //  - i would need to restructure most of the property handling again to
     //    make it 100% accurate, which i would like to do in the future but not before
     //    getting a 95% functional and correct version finished
 
@@ -130,6 +130,12 @@ io.on("connection", (socket) => {
         let playerObj = players.find((p) => p.id === socket.id);
         const propSet = playerObj.properties.filter((p) => p.colour === colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
         requestIndividualMoney(pf.calcRent(propSet));
+    });
+
+    socket.on("send_multirent_2", (colour) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        const propSet = playerObj.properties.filter((p) => p.colour === colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
+        requestAllMoney(pf.calcRent(propSet));
     });
 
     socket.on("request_new_deck", () => {
@@ -318,6 +324,7 @@ io.on("connection", (socket) => {
                 case "itsMyBirthday":
                     // ask each player to choose cards from their money pile/properties with total value >= 2
                     // if a player doesn't have enough to hit 2, automatically take all their played cards
+                    requestAllMoney(2);
                     break;
                 case "passGo":
                     playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
@@ -378,11 +385,23 @@ io.on("connection", (socket) => {
 
     // used for cards which ask a user to pick another user to take money from
     function requestIndividualMoney(amt) {
-        // TODO: change names to more generic ones
         socket.emit("receive_takemoney_1", {
             plrList: players,
             amt: amt
         });
+    }
+
+    function requestAllMoney(amt) {
+        players.forEach((plr) => {
+            if (plr.id !== socket.id) {
+                const victimObj = players.find((p) => p.id === plr.id);
+                io.to(plr.id).emit("receive_takemoney_3", {
+                    victimObj: victimObj,
+                    playerId: socket.id,
+                    amt: amt
+                });
+            }
+        })
     }
 });
 
