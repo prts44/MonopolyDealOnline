@@ -132,7 +132,23 @@ io.on("connection", (socket) => {
     });
 
     socket.on("send_forceddeal_2", (items) => {
-        let playerObj = players.find((p) => p.id === socket.id); // the taker sends this event
+        const victimObj = players.find((p) => p.id === items.victimId);
+        io.to(items.victimId).emit("receive_justsayno_1", {
+            cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
+            nextEvent: ["receive_forceddeal_3", {
+                victimId: items.victimId,
+                receiverId: socket.id,
+                taken: items.taken,
+                given: items.given,
+            }],
+            starterId: socket.id,
+            nextReceiverId: socket.id,
+            noCount: 0
+        });
+    });
+
+    socket.on("send_forceddeal_4", (items) => {
+        let playerObj = players.find((p) => p.id === items.receiverId); // the taker sends this event
         let victimObj = players.find((p) => p.id === items.victimId);
         playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
         victimObj.properties = pf.addProps(victimObj.properties, [items.given]);
@@ -141,7 +157,22 @@ io.on("connection", (socket) => {
     });
 
     socket.on("send_slydeal_2", (items) => {
-        let playerObj = players.find((p) => p.id === socket.id); // the taker sends this event
+        const victimObj = players.find((p) => p.id === items.victimId);
+        io.to(items.victimId).emit("receive_justsayno_1", {
+            cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
+            nextEvent: ["receive_slydeal_3", {
+                victimId: victimObj.id,
+                receiverId: socket.id,
+                taken: items.taken,
+            }],
+            starterId: socket.id,
+            nextReceiverId: socket.id,
+            noCount: 0
+        });
+    });
+
+    socket.on("send_slydeal_4", (items) => {
+        let playerObj = players.find((p) => p.id === items.receiverId);
         let victimObj = players.find((p) => p.id === items.victimId);
         playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
@@ -273,8 +304,7 @@ io.on("connection", (socket) => {
             // this removes the card by filtering the player's hand for all
             //  cards that don't share an internalId with the one played
             //
-            // somewhat inefficient but hands can only
-            //  ever have 7 so it's not too bad
+            // somewhat inefficient but hands can't go super high so it shouldn't be noticeable
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
             playerObj.money += card.value;
         } else if (card.type === "property") {
@@ -343,6 +373,7 @@ io.on("connection", (socket) => {
                             playerObj: playerObj
                         });
                     }
+                    playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     break; 
                 case "slyDeal":
                     // if no other players have property, card is not played and player is informed
@@ -357,6 +388,7 @@ io.on("connection", (socket) => {
                             plrList: plrsWithProps_1,
                             playerObj: playerObj
                         });
+                        playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     }
                     break; 
                 case "hotel":

@@ -238,6 +238,15 @@ function App() {
                 }}/></div>);
         });
 
+        socket.on("receive_forceddeal_3", (items) => {
+            socket.emit("send_forceddeal_4", {
+                victimId: items.victimId,
+                receiverId: items.receiverId,
+                taken: items.taken,
+                given: items.given
+            });
+        });
+
         socket.on("receive_slydeal_1", (data) => {
             let rtn = {
                 victimId: null,
@@ -270,6 +279,14 @@ function App() {
                         }}
                     /></div>);
                 }}/></div>);
+        });
+
+        socket.on("receive_slydeal_3", (items) => {
+            socket.emit("send_slydeal_4", {
+                victimId: items.victimId,
+                receiverId: items.receiverId,
+                taken: items.taken,
+            });
         });
 
         socket.on("receive_house_1", (fullProps) => {
