@@ -190,14 +190,36 @@ io.on("connection", (socket) => {
 
     socket.on("send_singlerent_2", (colour) => {
         let playerObj = players.find((p) => p.id === socket.id);
-        const propSet = playerObj.properties.filter((p) => p.colour === colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
-        requestIndividualMoney(pf.calcRent(propSet));
+        socket.emit("receive_singlerent_3", {
+            cards: playerObj.hand.filter((p) => p.type === "action" && p.id === "doubleRent"),
+            colour: colour
+        });
+    });
+
+    socket.on("send_singlerent_4", (items) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        if (items.drCard !== null) {
+            playerObj.hand = playerObj.hand.filter((c) => c.internalId !== items.drCard.internalId);
+        }
+        const propSet = playerObj.properties.filter((p) => p.colour === items.colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
+        requestIndividualMoney(pf.calcRent(propSet) * items.mult);
     });
 
     socket.on("send_multirent_2", (colour) => {
         let playerObj = players.find((p) => p.id === socket.id);
-        const propSet = playerObj.properties.filter((p) => p.colour === colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
-        requestAllMoney(pf.calcRent(propSet));
+        socket.emit("receive_multirent_3", {
+            cards: playerObj.hand.filter((p) => p.type === "action" && p.id === "doubleRent"),
+            colour: colour
+        });
+    });
+
+    socket.on("send_multirent_4", (items) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        if (items.drCard !== null) {
+            playerObj.hand = playerObj.hand.filter((c) => c.internalId !== items.drCard.internalId);
+        }
+        const propSet = playerObj.properties.filter((p) => p.colour === items.colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
+        requestAllMoney(pf.calcRent(propSet) * items.mult);
     });
 
     socket.on("send_justsayno_2", (items) => {
@@ -461,7 +483,6 @@ io.on("connection", (socket) => {
     }
 
     // gets the total money a player has in their money pile + properties
-    // TODO: change existing money calculations to use this instead
     function getTotalMoney(playerId) {
         let playerObj = players.find((p) => p.id === playerId);
         let money = 0;

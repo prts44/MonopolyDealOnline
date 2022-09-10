@@ -374,13 +374,52 @@ function App() {
                 }}/></div>);
         });
 
-        socket.on("update item", (arg1, arg2, callback) => {
-            console.log(arg1); // 1
-            console.log(arg2); // { name: "updated" }
-            //callback({
-            //  status: "ok"
-            //});
-          });
+        // these are double rent events
+        // yes, they are the exact same
+        // i hate it just as much as you don't worry
+        socket.on("receive_multirent_3", (items) => {
+            let mult = 1;
+            setPopupContent(<div key={"MultiDoubleRent"}><SelectionMenu 
+                cancelButton={true}
+                items={items.cards.map((c) => {
+                    return {
+                        item: c,
+                        label: "Double Rent"
+                    }})}
+                callback={(c) => {
+                    if (c !== null) {
+                        mult = 2;
+                    } 
+                    socket.emit("send_multirent_4", {
+                        colour: items.colour,
+                        mult: mult,
+                        drCard: c
+                    });
+                    closeModal();
+                }}/></div>);
+        });
+
+        socket.on("receive_singlerent_3", (items) => {
+            let mult = 1;
+            setPopupContent(<div key={"SingleDoubleRent"}><SelectionMenu 
+                cancelButton={true}
+                items={items.cards.map((c) => {
+                    return {
+                        item: c,
+                        label: "Double Rent"
+                    }})}
+                callback={(c) => {
+                    if (c !== null) {
+                        mult = 2;
+                    } 
+                    socket.emit("send_singlerent_4", {
+                        colour: items.colour,
+                        mult: mult,
+                        drCard: c
+                    });
+                    closeModal();
+                }}/></div>);
+        });
 
         return () => {
             socket.off("receive_new_deck");
@@ -416,7 +455,9 @@ function App() {
                 <input type="number" onChange={(e) => {
                     setTutorId(e.target.value);
                 }}/>
-                <button onClick={() => {console.log(tutorId); socket.emit("request_tutor_card", tutorId);}}>Tutor a card</button>
+                <button onClick={() => {socket.emit("request_tutor_card", tutorId);}}>Tutor a card</button>
+                <button>Start game</button>
+                <button>End turn</button>
             </div>
             <Hand cards={hand} callback={playCard}/>
             <Popup open={open} closeOnDocumentClick={false} onClose={closeModal}>
