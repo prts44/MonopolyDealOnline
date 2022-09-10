@@ -82,10 +82,16 @@ io.on("connection", (socket) => {
 
     socket.on("send_takemoney_2", (items) => {
         const victimObj = players.find((p) => p.id === items.id);
-        io.to(items.id).emit("receive_takemoney_3", {
-            victimObj: victimObj,
-            playerId: socket.id,
-            amt: items.amt
+        io.to(items.id).emit("receive_justsayno_1", {
+            cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
+            nextEvent: ["receive_takemoney_3", {
+                victimObj: victimObj,
+                playerId: socket.id,
+                amt: items.amt
+            }],
+            starterId: socket.id,
+            nextReceiverId: socket.id,
+            noCount: 0
         });
     });
     
@@ -136,6 +142,20 @@ io.on("connection", (socket) => {
         let playerObj = players.find((p) => p.id === socket.id);
         const propSet = playerObj.properties.filter((p) => p.colour === colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
         requestAllMoney(pf.calcRent(propSet));
+    });
+
+    socket.on("send_justsayno_2", (items) => {
+        let playerObj = players.find((p) => p.id === items.nextReceiverId);
+        let senderObj = players.find((p) => p.id === socket.id); // used to clear the sender's JSN
+        senderObj.hand = senderObj.hand.filter((c) => c.internalId !== items.card.internalId);
+        console.log(items.nextReceiverId);
+        io.to(items.nextReceiverId).emit("receive_justsayno_1", {
+            cards: playerObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
+            nextEvent: items.nextEvent,
+            starterId: items.starterId,
+            nextReceiverId: socket.id,
+            noCount: items.noCount
+        });
     });
 
     socket.on("request_new_deck", () => {
@@ -196,6 +216,16 @@ io.on("connection", (socket) => {
     socket.on("request_game_state", () => {
         socket.emit("receive_game_state", players);
     });
+
+    socket.on("request_emit_event_from_server", (event, params) => {
+        socket.emit(event, params);
+    })
+
+    socket.on("aaaaa", () => {
+        socket.to(socket.id).emit("update item", "1", { name: "updated" }, (response) => {
+            console.log(response.status); // ok
+        });
+    })
 
     // i would prefer to not have these functions here but this
     //  is the only way i can think of to have cards played
@@ -262,6 +292,7 @@ io.on("connection", (socket) => {
                     //  they give up all of their cards in play
                     console.log("Switch case passed");
                     requestIndividualMoney(5);
+                    playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     break;
                 case "forcedDeal":
                     // if no other players have property, card is not played and player is informed
@@ -325,6 +356,7 @@ io.on("connection", (socket) => {
                     // ask each player to choose cards from their money pile/properties with total value >= 2
                     // if a player doesn't have enough to hit 2, automatically take all their played cards
                     requestAllMoney(2);
+                    playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     break;
                 case "passGo":
                     playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
@@ -386,7 +418,7 @@ io.on("connection", (socket) => {
     // used for cards which ask a user to pick another user to take money from
     function requestIndividualMoney(amt) {
         socket.emit("receive_takemoney_1", {
-            plrList: players,
+            plrList: players.filter((p) => p.id !== socket.id),
             amt: amt
         });
     }

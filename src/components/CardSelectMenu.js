@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 // takes a player object and creates a set of checkboxes
 //  of their played cards and properties
 // callback function should do something with all selected cards
-function SelectionMenu(props) {
+function CardSelectMenu(props) {
 
     const [propDisplay, setPropDisplay] = useState(<></>);
     const [moneyDisplay, setMoneyDisplay] = useState(<></>);
@@ -91,9 +91,9 @@ function SelectionMenu(props) {
     )
 }
 
-SelectionMenu.defaultProps = {
+CardSelectMenu.defaultProps = {
     displayMoney: true,
     displayProps: true
 }
 
-export default SelectionMenu;
+export default CardSelectMenu;

@@ -315,6 +315,47 @@ function App() {
                 }}/></div>);
         });
 
+        // the victim of the action card played will receive this event
+        socket.on("receive_justsayno_1", (items) => {
+            alert("JSN event worked");
+            console.log(items.cards);
+            console.log(items.callback);
+            setPopupContent(<div key={"JSNPickCard"}><SelectionMenu 
+                cancelButton={true}
+                items={items.cards.map((c) => {
+                    return {
+                        item: c,
+                        label: "Just Say No"
+                    }})}
+                callback={(c) => {
+                    console.log(items.noCount);
+                    if (c !== null) {
+                        socket.emit("send_justsayno_2", {
+                            nextEvent: items.nextEvent,
+                            starterId: items.starterId,
+                            nextReceiverId: items.nextReceiverId,
+                            noCount: items.noCount + 1,
+                            card: c
+                        }); // TODO: finish JSN chain
+                    } else if (items.noCount % 2 === 0){
+                        console.log("Even # of JSNs played; proceed with event");
+                        socket.emit("request_emit_event_from_server", items.nextEvent[0], items.nextEvent[1]);
+                    } else {
+                        console.log("Odd # of JSNs played; proceed with event");
+                        alert("The other player said no!");
+                    }
+                    closeModal();
+                }}/></div>);
+        });
+
+        socket.on("update item", (arg1, arg2, callback) => {
+            console.log(arg1); // 1
+            console.log(arg2); // { name: "updated" }
+            //callback({
+            //  status: "ok"
+            //});
+          });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");
@@ -345,6 +386,7 @@ function App() {
                 <button onClick={() => {socket.emit("request_properties");}}>See your properties</button>
                 <button onClick={() => {socket.emit("request_game_state");}}>See the current game state</button>
                 <button onClick={() => {socket.emit("request_enter_game");}}>Enter the game</button>
+                <button onClick={() => {socket.emit("aaaaa");}}>do the thing</button>
             </div>
             <Hand cards={hand} callback={playCard}/>
             <Popup open={open} closeOnDocumentClick={false} onClose={closeModal}>

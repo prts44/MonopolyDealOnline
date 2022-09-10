@@ -11,9 +11,13 @@ function SelectionMenu(props) {
 
     const [display, setDisplay] = useState(<></>);
     const [selected, setSelected] = useState(null);
+    const [cancelButton, setCancelButton] = useState(<></>);
     const key = useRef(0);
 
     useEffect(() => {
+        if (props.cancelButton) {
+            setCancelButton(<button onClick={() => {props.callback(null);}}>Cancel</button>);
+        }
         try {
             let d = props.items.map((item) => {
                 return (<span>
@@ -37,8 +41,13 @@ function SelectionMenu(props) {
         <>
             {display}
             <button onClick={() => {props.callback(selected)}}>Select</button>
+            {cancelButton}
         </>
     )
+}
+
+SelectionMenu.defaultProps = {
+    cancelButton: false
 }
 
 export default SelectionMenu;
