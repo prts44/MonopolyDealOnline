@@ -2,15 +2,18 @@
 A digital version of the card game Monopoly Deal
 
 ## Progress
-~42% done.
+~50% done.
 
-The deck, hand, and draw handling work.
-You can play property, money, and most action cards.
-The only player interaction is with action cards.
-You can't play a proper game yet.
+Cards remaining:
+- Just Say No integrations for some more action cards
+- Wild properties
 
-Things to do:
-- Ability to play all cards
+Other things to do:
 - Graphics
+- Ability to play a proper game
 - Hand size check
 - Played pile interactions
+- Display usernames
+
+Extras:
+- New mode featuring custom cards
