@@ -7,7 +7,7 @@ You can find the rules for monopoly deal [here](http://monopolydealrules.com/ind
 
 The rules differ slightly for this online version due to the way I've implemented it. I would like to remove these differences, but I want to have something that works before that. The scenarios where these differences will matter are somewhat uncommon, but not impossible and will likely impact some games, so I don't want to keep them for very long. Removing these differences will require me to redo most of the property handling as they are edge cases that I failed to notice somewhat late into development.
 
-If I ever host this project publicly, expect there to only be one room for games that you can join and anyone can start for now. This is due to some limitations with Socket.io that I didn't notice until it was too late. I would absolutely love to have multiple rooms, but right now the game works best as a locally-hosted one with friends. This is something I'd like to fix in the future.
+If I ever host this project publicly, expect there to only be one room for games that you can join and anyone can start for now. This is due to some limitations with Socket.io that I didn't notice until it was too late. I would absolutely love to have multiple rooms, but right now the game works best as a self-hosted one with friends. This is something I'd like to fix in the future.
 
 ## Screenshots
 TODO
