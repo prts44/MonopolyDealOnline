@@ -5,7 +5,14 @@ You can find the rules for monopoly deal [here](http://monopolydealrules.com/ind
 
 <b>NOTE:</b>
 
-The rules differ slightly for this online version due to the way I've implemented it. I would like to remove these differences, but I want to have something that works before that. The scenarios where these differences will matter are somewhat uncommon, but not impossible and will likely impact some games, so I don't want to keep them for very long. Removing these differences will require me to redo most of the property handling as they are edge cases that I failed to notice somewhat late into development.
+The rules differ slightly for this online version due to the way I've implemented it. I would like to remove these differences, but I want to have something that works before that. The scenarios where these differences will matter are somewhat uncommon, but not impossible and will likely impact some games, so I don't want to keep them for very long. Removing these differences will require me to redo most of the property handling as they are edge cases that I failed to notice somewhat late into development. Aside from this, there are some alterations that I'm keeping because I personally prefer them. The list is here:
+
+Unintentional alterations:
+- Wild properties cannot be swapped.
+- Full property sets cannot be broken under any circumstances. They are treated as a single unit once completed.
+
+Intentional alterations:
+- Cards cannot be played if the circumstances are not correct (original rules state any card played under the wrong circumstances counts as a played card which I personally believe is dumb)
 
 If I ever host this project publicly, expect there to only be one room for games that you can join and anyone can start for now. This is due to some limitations with Socket.io that I didn't notice until it was too late. I would absolutely love to have multiple rooms, but right now the game works best as a self-hosted one with friends. This is something I'd like to fix in the future.
 
@@ -23,7 +30,7 @@ Once both are running, all you need to do is go to the url/ip of the client host
 65% done.
 
 Cards remaining:
-- Double rent
+- Cards as money
 - Wild properties
 
 Other things to do:
