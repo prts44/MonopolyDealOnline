@@ -23,7 +23,7 @@ Once both are running, all you need to do is go to the url/ip of the client host
 65% done.
 
 Cards remaining:
-- Just Say No integrations for some action cards
+- Double rent
 - Wild properties
 
 Other things to do:
