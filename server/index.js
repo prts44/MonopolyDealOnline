@@ -66,19 +66,44 @@ io.on("connection", (socket) => {
     //    make it 100% accurate, which i would like to do in the future but not before
     //    getting a 95% functional and correct version finished
 
+    /*  format for events which require a JSN chain check:
+        io.to(items.id).emit("receive_justsayno_1", {
+            cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
+            nextEvent: [{event name}, {parameters}] (ONLY CHANGE THIS PART)
+            starterId: socket.id,
+            nextReceiverId: socket.id,
+            noCount: 0
+        });
+    */
+
     socket.on("send_play_card", (card) => {
         console.log("Server received data");
         playCard(card);
     });
 
-    socket.on("send_dealbreaker_2", (data) => {
-        console.log(data);
-        let victimObj = players.find((p) => p.id === data.id);
-        let playerObj = players.find((p) => p.id === socket.id);
-        const stolenProp = victimObj.properties.filter((p) => p.colour === data.colour)[0];
-        victimObj.properties = victimObj.properties.filter((p) => p.colour !== data.colour);
-        playerObj.properties.push(stolenProp);
+    socket.on("send_dealbreaker_2", (items) => {
+        let victimObj = players.find((p) => p.id === items.id);
+        io.to(items.id).emit("receive_justsayno_1", {
+            cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
+            nextEvent: ["receive_dealbreaker_3", {
+                receiverId: socket.id,
+                colour: items.colour,
+                victimId: items.id
+            }], 
+            starterId: socket.id,
+            nextReceiverId: socket.id,
+            noCount: 0
+        });
     });
+
+    // does the dealbreaker steal after a JSN chain
+    socket.on("send_dealbreaker_4", (items) => {
+        let victimObj = players.find((p) => p.id === items.victimId);
+        let playerObj = players.find((p) => p.id === items.receiverId);
+        const stolenProp = victimObj.properties.filter((p) => p.colour === items.colour)[0];
+        victimObj.properties = victimObj.properties.filter((p) => p.colour !== items.colour);
+        playerObj.properties.push(stolenProp);
+    })
 
     socket.on("send_takemoney_2", (items) => {
         const victimObj = players.find((p) => p.id === items.id);
@@ -219,6 +244,15 @@ io.on("connection", (socket) => {
 
     socket.on("request_emit_event_from_server", (event, params) => {
         socket.emit(event, params);
+    });
+
+    socket.on("request_tutor_card", (id) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        let draw = dc.tutorCard(id, deck);
+        if (draw) {
+            playerObj.hand.push(draw);
+        }
+        deck = deck.filter((c) => c.internalId !== id);
     })
 
     socket.on("aaaaa", () => {
@@ -283,6 +317,7 @@ io.on("connection", (socket) => {
                         socket.emit("receive_alert_message", "No other players have full properties");
                     } else {
                         socket.emit("receive_dealbreaker_1", plrsWithFullSet);
+                        playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     }
                     break;
                 case "debtCollector":

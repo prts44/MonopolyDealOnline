@@ -18,6 +18,7 @@ function App() {
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
     const [popupContent, setPopupContent] = useState(null);
+    const [tutorId, setTutorId] = useState(null);
 
     const selectedCards = useRef([]);
 
@@ -134,6 +135,14 @@ function App() {
                             closeModal();}}
                     /></div>);
                 }}/></div>);
+        });
+
+        socket.on("receive_dealbreaker_3", (items) => {
+            socket.emit("send_dealbreaker_4", {
+                receiverId: items.receiverId,
+                colour: items.colour,
+                victimId: items.victimId
+            });
         });
 
         socket.on("receive_takemoney_1", (items) => {
@@ -336,7 +345,7 @@ function App() {
                             nextReceiverId: items.nextReceiverId,
                             noCount: items.noCount + 1,
                             card: c
-                        }); // TODO: finish JSN chain
+                        });
                     } else if (items.noCount % 2 === 0){
                         console.log("Even # of JSNs played; proceed with event");
                         socket.emit("request_emit_event_from_server", items.nextEvent[0], items.nextEvent[1]);
@@ -387,6 +396,10 @@ function App() {
                 <button onClick={() => {socket.emit("request_game_state");}}>See the current game state</button>
                 <button onClick={() => {socket.emit("request_enter_game");}}>Enter the game</button>
                 <button onClick={() => {socket.emit("aaaaa");}}>do the thing</button>
+                <input type="number" onChange={(e) => {
+                    setTutorId(e.target.value);
+                }}/>
+                <button onClick={() => {console.log(tutorId); socket.emit("request_tutor_card", tutorId);}}>Tutor a card</button>
             </div>
             <Hand cards={hand} callback={playCard}/>
             <Popup open={open} closeOnDocumentClick={false} onClose={closeModal}>
