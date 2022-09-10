@@ -54,6 +54,10 @@ function Hand(props) {
                 props.callback(selectedCard);
                 setSelectedCard(null);
             }}>Play card</button>
+            <button onClick={() => {
+                props.callback2(selectedCard);
+                setSelectedCard(null);
+            }}>Play card as money</button>
         </div>
     )
 }   

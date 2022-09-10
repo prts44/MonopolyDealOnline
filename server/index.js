@@ -81,6 +81,11 @@ io.on("connection", (socket) => {
         playCard(card);
     });
 
+    socket.on("send_play_card_as_money", (card) => {
+        console.log("Server received data");
+        playCardAsMoney(card);
+    });
+
     socket.on("send_dealbreaker_2", (items) => {
         let victimObj = players.find((p) => p.id === items.id);
         io.to(items.id).emit("receive_justsayno_1", {
@@ -242,7 +247,7 @@ io.on("connection", (socket) => {
         console.log("Generated deck");
     });
 
-    socket.on("request_new_hand", (data) => {
+    socket.on("request_new_hand", () => {
         let playerObj = players.find((p) => p.id === socket.id);
         playerObj.hand = dc.drawCard(5, deck);
         socket.emit("receive_new_hand", {
@@ -251,12 +256,12 @@ io.on("connection", (socket) => {
         });
     });
 
-    socket.on("request_hand", (data) => {
+    socket.on("request_hand", () => {
         let playerObj = players.find((p) => p.id === socket.id);
         socket.emit("receive_hand", playerObj.hand);
     });
 
-    socket.on("request_card_draw", (data) => {
+    socket.on("request_card_draw", () => {
         let playerObj = players.find((p) => p.id === socket.id);
         const newCard = dc.drawCard(1, deck);
         playerObj.hand = playerObj.hand.concat(newCard);
@@ -266,7 +271,7 @@ io.on("connection", (socket) => {
         });
     });
 
-    socket.on("request_deck", (data) => {
+    socket.on("request_deck", () => {
         socket.emit("receive_deck", deck);
     });
     
@@ -480,6 +485,11 @@ io.on("connection", (socket) => {
             socket.emit("receive_alert_message", "How did this happen?");
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
+    }
+
+    function playCardAsMoney(card) {
+        card.type = "money";
+        playCard(card);
     }
 
     // gets the total money a player has in their money pile + properties

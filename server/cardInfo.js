@@ -3,52 +3,62 @@ const actionCards = [
     {
         id: "dealBreaker",
         name: "Deal Breaker",
-        qty: 2
+        qty: 2,
+        value: 5
     },
     {
         id: "debtCollector",
         name: "Debt Collector",
-        qty: 3
+        qty: 3,
+        value: 3
     },
     {
         id: "doubleRent",
         name: "Double the Rent",
-        qty: 2
+        qty: 2,
+        value: 1
     },
     {
         id: "forcedDeal",
         name: "Forced Deal",
-        qty: 2
+        qty: 2,
+        value: 3
     },
     {
         id: "hotel",
         name: "Hotel",
-        qty: 3
+        qty: 3,
+        value: 4
     },
     {
         id: "house",
         name: "House",
-        qty: 3
+        qty: 3,
+        value: 3
     },
     {
         id: "itsMyBirthday",
         name: "It's My Birthday",
-        qty: 3
+        qty: 3,
+        value: 2
     },
     {
         id: "slyDeal",
         name: "Sly Deal",
-        qty: 3
+        qty: 3,
+        value: 3
     },
     {
         id: "passGo",
         name: "Pass Go",
-        qty: 10
+        qty: 10,
+        value: 1
     },
     {
         id: "justSayNo",
         name: "Just Say No",
-        qty: 3
+        qty: 3,
+        value: 4
     },
 ];
 
@@ -181,27 +191,33 @@ const wildCards = [
 const rentCards = [
     {
         colours: ["blue", "green"],
-        qty: 2
+        qty: 2,
+        value: 1
     },
     {
         colours: ["purple", "orange"],
-        qty: 2
+        qty: 2,
+        value: 1
     },
     {
         colours: ["lightblue", "brown"],
-        qty: 2
+        qty: 2,
+        value: 1
     },
     {
         colours: ["red", "yellow"],
-        qty: 2
+        qty: 2,
+        value: 1
     },
     {
         colours: ["grey", "black"],
-        qty: 2
+        qty: 2,
+        value: 1
     },
     {
         colours: ["blue", "green", "purple", "orange", "lightblue", "red", "yellow", "black", "grey"],
-        qty: 3
+        qty: 3,
+        value: 3
     }
 ];
 

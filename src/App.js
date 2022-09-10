@@ -34,6 +34,14 @@ function App() {
         }
     }
 
+    function playCardAsMoney(card) {
+        if (card.type === "property" || card.type === "wildproperty") {
+            alert("You cannot play a property as money");
+        } else {
+            socket.emit("send_play_card_as_money", card);
+        }
+    }
+
     // requires the client to have game state, which isnt implemented yet
     // will otherwise do numerous checks to see if the play is valid
     function checkValidPlay(card) {
@@ -433,7 +441,7 @@ function App() {
             socket.off("receive_properties");
             socket.off("receive_game_state");
         }
-    }, [socket]);
+    }, []);
 
     return (
         <div id="mainDiv">
@@ -459,7 +467,7 @@ function App() {
                 <button>Start game</button>
                 <button>End turn</button>
             </div>
-            <Hand cards={hand} callback={playCard}/>
+            <Hand cards={hand} callback={playCard} callback2={playCardAsMoney}/>
             <Popup open={open} closeOnDocumentClick={false} onClose={closeModal}>
                 <div className="modal">
                     {popupContent}
