@@ -43,7 +43,9 @@ io.on("connection", (socket) => {
 
     // only add a player to the game if the client requests
     socket.on("request_enter_game", () => {
-        if (players.length === 0 || players.filter((p) => p.id === socket.id).length === 0) {
+        if (gameActive) {
+            socket.emit("receive_alert_message", "You can't join an ongoing game.");
+        } else if (players.length === 0 || players.filter((p) => p.id === socket.id).length === 0) {
             players.push({
                 id: socket.id,
                 hand: [],
@@ -51,7 +53,8 @@ io.on("connection", (socket) => {
                 moneyPile: [],
                 money: 0,
                 playsRemaining: 0,
-                turn: false
+                turn: false,
+                waiting: false // will be used for JSN chains where the player must wait to see how the other player reacts
             });
         }
     });
@@ -349,6 +352,13 @@ io.on("connection", (socket) => {
     function playCard(card) {
         console.log("playCard running");
         let playerObj = players.find((p) => p.id === socket.id);
+        if (playerObj.turn === false) {
+            socket.emit("receive_alert_message", "It is not your turn.");
+            return;
+        } else if (playerObj.playsRemaining === 0) {
+            socket.emit("receive_alert_message", "You have already played 3 cards this turn.");
+            return;
+        }
         if (card.type === "money") {
             console.log("Type check passed");
             playerObj.moneyPile.push(card);  
@@ -357,12 +367,14 @@ io.on("connection", (socket) => {
             //
             // somewhat inefficient but hands can't go super high so it shouldn't be noticeable
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
-            playerObj.money += card.value;
+            playerObj.money = getTotalMoney(socket.id);
+            playerObj.playsRemaining -= 1;
         } else if (card.type === "property") {
             console.log("Type check passed");
             playerObj.properties = pf.addProps(playerObj.properties, [card]);
             playerObj.money = getTotalMoney(socket.id);
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+            playerObj.playsRemaining -= 1;
         } else if (card.type === "action") {
             console.log("Type check passed");
             switch(card.id) {
@@ -386,6 +398,7 @@ io.on("connection", (socket) => {
                     } else {
                         socket.emit("receive_dealbreaker_1", plrsWithFullSet);
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playerObj.playsRemaining -= 1;
                     }
                     break;
                 case "debtCollector":
@@ -396,6 +409,7 @@ io.on("connection", (socket) => {
                     console.log("Switch case passed");
                     requestIndividualMoney(5);
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    playerObj.playsRemaining -= 1;
                     break;
                 case "forcedDeal":
                     // if no other players have property, card is not played and player is informed
@@ -410,8 +424,9 @@ io.on("connection", (socket) => {
                             plrList: plrsWithProps,
                             playerObj: playerObj
                         });
+                        playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playerObj.playsRemaining -= 1;
                     }
-                    playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     break; 
                 case "slyDeal":
                     // if no other players have property, card is not played and player is informed
@@ -427,6 +442,7 @@ io.on("connection", (socket) => {
                             playerObj: playerObj
                         });
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playerObj.playsRemaining -= 1;
                     }
                     break; 
                 case "hotel":
@@ -437,6 +453,7 @@ io.on("connection", (socket) => {
                     } else {
                         socket.emit("receive_hotel_1", fullPropsWithHouse);
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playerObj.playsRemaining -= 1;
                         // ask player to choose from a list of their full properties
                         //  player chooses a full property with a house
                         //  server applies house to it and removes house from their hand
@@ -451,6 +468,7 @@ io.on("connection", (socket) => {
                     } else {
                         socket.emit("receive_house_1", fullProps);
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playerObj.playsRemaining -= 1;
                         // ask player to choose from a list of their full properties
                         // player chooses a full property
                         // server applies house to it and removes house from their hand
@@ -462,10 +480,12 @@ io.on("connection", (socket) => {
                     // if a player doesn't have enough to hit 2, automatically take all their played cards
                     requestAllMoney(2);
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    playerObj.playsRemaining -= 1;
                     break;
                 case "passGo":
                     playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    playerObj.playsRemaining -= 1;
                     break;
                 default:
                     // double rent and just say no will cause this since these
@@ -489,6 +509,8 @@ io.on("connection", (socket) => {
                         plrList: players
                     });
                 }
+                playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                playerObj.playsRemaining -= 1;
             }
         } else if (card.type === "wildproperty") {
             console.log("wild property");
@@ -497,6 +519,7 @@ io.on("connection", (socket) => {
                 card: card
             });
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+            playerObj.playsRemaining -= 1;
         } else {
             socket.emit("receive_alert_message", "How did this happen?");
         }
@@ -572,6 +595,7 @@ io.on("connection", (socket) => {
         });
         currentTurn = 0;
         players.find((p) => p.id === turnOrder[currentTurn].id).turn = true;
+        gameActive = true;
         startTurn();
     }
 
@@ -580,6 +604,7 @@ io.on("connection", (socket) => {
         playerObj.playsRemaining = 3;
         const newCards = dc.drawCard(2, deck);
         playerObj.hand = playerObj.hand.concat(newCards);
+        io.to(playerObj.id).emit("receive_hand", playerObj.hand);
         io.to(playerObj.id).emit("receive_alert_message", "It is your turn.");
     }
 

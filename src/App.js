@@ -26,7 +26,7 @@ function App() {
     //  what card the user is trying to play and lets it handle it
     function playCard(card) {
         console.log("Callback function reached");
-        if (checkValidPlay(card)) {
+        if (checkCardExists(card)) {
             console.log("Validity check passed");
             socket.emit("send_play_card", card);
         } else {
@@ -35,16 +35,17 @@ function App() {
     }
 
     function playCardAsMoney(card) {
-        if (card.type === "property" || card.type === "wildproperty") {
+        if (checkCardExists(card)) {
+            console.log("Invalid play");
+        } else if (card.type === "property" || card.type === "wildproperty") {
             alert("You cannot play a property as money");
         } else {
             socket.emit("send_play_card_as_money", card);
         }
     }
 
-    // requires the client to have game state, which isnt implemented yet
-    // will otherwise do numerous checks to see if the play is valid
-    function checkValidPlay(card) {
+    // ensures the client does not send a null card (no card)
+    function checkCardExists(card) {
         if (card == null) {
             return false;
         } else {
@@ -85,7 +86,7 @@ function App() {
             console.log(data);
         });
 
-        socket.on("receive_play_card", (data) => {
+        socket.on("receive_play_card", () => {
             console.log("Card successfully played");
         });
 
@@ -173,7 +174,8 @@ function App() {
             if (items.victimObj.money <= items.amt) {
                 alert("You had to pay all your cards!");
                 socket.emit("send_takemoney_4", {
-                    props: [].concat(items.victimObj.properties.map((p) => {return p.cards})).flat(),
+                    // props looks like a mess but basically it just gets all property cards with > 0 value (excludes "all" wild property)
+                    props: [].concat(items.victimObj.properties.map((p) => {return p.cards})).flat().filter((c) => c.value > 0),
                     money: items.victimObj.moneyPile,
                     playerId: items.playerId
                 });

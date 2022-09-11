@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import style from '../styles/card.module.css';
+import Card from './Card.js';
 
 function Hand(props) {
 
@@ -32,8 +33,9 @@ function Hand(props) {
     useEffect(() => {
         try {
             let d = props.cards.map((card) => {
-                return getCard(card);
+                return <Card card={card} callback={(c) => {setSelectedCard(c);}}/>;
             });
+            console.log(d);
             setHandDisplay(d); 
         } catch (error) {
             console.log(error);

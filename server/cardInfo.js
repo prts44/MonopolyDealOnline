@@ -149,42 +149,50 @@ const wildCards = [
     {
         colours: ["blue", "green"],
         qty: 1,
-        victims: "all"
+        victims: "all",
+        value: 4
     },
     {
         colours: ["purple", "orange"],
         qty: 2,
-        victims: "all"
+        victims: "all",
+        value: 2
     },
     {
         colours: ["lightblue", "brown"],
         qty: 1,
-        victims: "all"
+        victims: "all",
+        value: 1
     },
     {
-        colours: ["lightblue", "grey"],
+        colours: ["lightblue", "black"],
         qty: 1,
-        victims: "all"
+        victims: "all",
+        value: 4
     },
     {
         colours: ["black", "green"],
         qty: 1,
-        victims: "all"
+        victims: "all",
+        value: 4
     },
     {
         colours: ["red", "yellow"],
         qty: 2,
-        victims: "all"
+        victims: "all",
+        value: 3
     },
     {
         colours: ["grey", "black"],
         qty: 1,
-        victims: "all"
+        victims: "all",
+        value: 2
     },
     {
         colours: ["blue", "green", "purple", "orange", "lightblue", "red", "yellow", "black", "grey"],
         qty: 2,
-        victims: "single"
+        victims: "single",
+        value: 0
     }
 ];
 

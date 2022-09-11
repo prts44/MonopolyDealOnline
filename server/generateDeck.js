@@ -52,7 +52,8 @@ module.exports = {
                     {
                         colours: card.colours,
                         type: "wildproperty",
-                        internalId: internalId
+                        internalId: internalId,
+                        value: card.value
                     }
                 );
                 internalId++;
