@@ -9,7 +9,7 @@ const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { hasProps, calcRent } = require('./propFuncs.js');
+const { hasProps } = require('./propFuncs.js');
 app.use(cors());
 const server = http.createServer(app);
 
@@ -23,6 +23,9 @@ const io = new Server(server, {
 let deck = [];
 let trashPile = [];
 let players = [];
+let currentTurn = null;
+let turnOrder = [];
+let gameActive = false;
 
 // convention for events:
 //  "send_x": client sends x data
@@ -321,13 +324,24 @@ io.on("connection", (socket) => {
             playerObj.hand.push(draw);
         }
         deck = deck.filter((c) => c.internalId !== id);
+    });
+
+    socket.on("request_start_game", () => {
+        if (gameActive) {
+            socket.emit("receive_alert_message", "There is already a game going on.");
+        } else {
+            startGame();
+        }
     })
 
-    socket.on("aaaaa", () => {
-        socket.to(socket.id).emit("update item", "1", { name: "updated" }, (response) => {
-            console.log(response.status); // ok
-        });
-    })
+    socket.on("request_end_turn", () => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        if (playerObj.turn === false) {
+            socket.emit("receive_alert_message", "It is not your turn.");
+        } else {
+            endTurn();
+        }
+    });
 
     // i would prefer to not have these functions here but this
     //  is the only way i can think of to have cards played
@@ -534,6 +548,49 @@ io.on("connection", (socket) => {
                 });
             }
         })
+    }
+
+    function startGame() {
+        turnOrder = [...players];
+        // extremely basic shuffling "algorithm" which just swaps
+        //  the positions of two random values in the array 35 times
+        //  copied from generateDeck (don't want to make a full js file for this since it's used twice)
+        for (let i = 0 ; i < 35 ; i++) {
+            const rand1 = Math.floor(Math.random() * turnOrder.length);
+            const rand2 = Math.floor(Math.random() * turnOrder.length);
+            const temp = turnOrder[rand1];
+            turnOrder[rand1] = turnOrder[rand2];
+            turnOrder[rand2] = temp;
+        }
+        console.log(turnOrder);
+        deck = gd.generateDeck();
+        players.forEach((p) => {
+            p.hand = dc.drawCard(5, deck);
+            io.to(p.id).emit("receive_new_hand", {
+                hand: p.hand
+            });
+        });
+        currentTurn = 0;
+        players.find((p) => p.id === turnOrder[currentTurn].id).turn = true;
+        startTurn();
+    }
+
+    function startTurn() {
+        let playerObj = players.find((p) => p.id === turnOrder[currentTurn].id);
+        playerObj.playsRemaining = 3;
+        const newCards = dc.drawCard(2, deck);
+        playerObj.hand = playerObj.hand.concat(newCards);
+        io.to(playerObj.id).emit("receive_alert_message", "It is your turn.");
+    }
+
+    function endTurn() {
+        players.find((p) => p.id === turnOrder[currentTurn].id).turn = false;
+        currentTurn++;
+        if (currentTurn >= players.length) {
+            currentTurn = 0;
+        }
+        players.find((p) => p.id === turnOrder[currentTurn].id).turn = true;
+        startTurn();
     }
 });
 

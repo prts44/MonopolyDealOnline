@@ -68,7 +68,6 @@ function App() {
 
         socket.on("receive_new_hand", (data) => {
             console.log(data.hand);
-            console.log(data.deck);
             setHand(data.hand);
         });
 
@@ -480,8 +479,8 @@ function App() {
                     setTutorId(e.target.value);
                 }}/>
                 <button onClick={() => {socket.emit("request_tutor_card", tutorId);}}>Tutor a card</button>
-                <button>Start game</button>
-                <button>End turn</button>
+                <button onClick={() => {socket.emit("request_start_game");}}>Start game</button>
+                <button onClick={() => {socket.emit("request_end_turn");}}>End turn</button>
             </div>
             <Hand cards={hand} callback={playCard} callback2={playCardAsMoney}/>
             <Popup open={open} closeOnDocumentClick={false} onClose={closeModal}>
