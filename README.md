@@ -10,6 +10,7 @@ The rules differ slightly for this online version due to the way I've implemente
 Unintentional alterations:
 - Wild properties cannot be swapped.
 - Full property sets cannot be broken under any circumstances. They are treated as a single unit once completed.
+- All colour wild properties can be played without an existing set
 
 Intentional alterations:
 - Cards cannot be played if the circumstances are not correct (original rules state any card played under the wrong circumstances counts as a played card which I personally believe is dumb)
@@ -27,10 +28,10 @@ Basically, you need to have two things running:
 Once both are running, all you need to do is go to the url/ip of the client host, and you should be able to play the game from there. Any other players just have to connect to the client. (I have not tested this as of writing this version of the README since the project is not complete)
 
 ## Progress
-67% done.
+70% done.
 
 Cards remaining:
-- Wild properties
+- None 
 
 Other things to do:
 - Graphics
