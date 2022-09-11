@@ -1,16 +1,20 @@
+const { propertyCards } = require("./cardInfo");
+
 module.exports = {
     // returns a new array with the given property cards added to it
     addProps(arr, props) {
         let newArr = [...arr];
         props.forEach((card) => {
-            // if the player does not have a property set with this colour yet
-            if (newArr.filter((propSet) => propSet.colour === card.colour).length === 0) {
+            // if the player does is missing a non-full property set for this colour
+            if (newArr.filter((propSet) => propSet.colour === card.colour && propSet.cards.length < propSet.rent.length).length === 0) {
+                const intId = newArr.filter((p) => p.colour === card.colour).length; // used to differentiate different sets of the same colour
                 newArr.push({
                     colour: card.colour,
                     cards: [card],
                     rent: card.rent,
                     house: false,
-                    hotel: false
+                    hotel: false,
+                    internalId: intId
                 });
             } else {
                 newArr[newArr.findIndex((p) => p.colour === card.colour && p.cards.length < p.rent.length)].cards.push(card);
@@ -63,5 +67,10 @@ module.exports = {
             finalRent += 4;
         }
         return finalRent;
+    },
+    // returns the rent array for a specific colour
+    // used for wild properties
+    getRentFromColour(colour) {
+        return propertyCards.find((c) => c.colour === colour).rent;
     }
 }

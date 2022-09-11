@@ -429,6 +429,22 @@ function App() {
                 }}/></div>);
         });
 
+        socket.on("receive_wildproperty_1", (items) => {
+            setPopupContent(<div key={"WPColourPicker"}><SelectionMenu 
+                items={items.colours.map((c) => {
+                    return {
+                        item: c,
+                        label: c
+                    }})}
+                callback={(c) => {
+                    socket.emit("send_wildproperty_2", {
+                        colour: c,
+                        card: items.card
+                    });    
+                    closeModal();
+                }}/></div>);
+        });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");

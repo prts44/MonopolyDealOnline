@@ -241,6 +241,16 @@ io.on("connection", (socket) => {
         });
     });
 
+    socket.on("send_wildproperty_2", (items) => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        let newCard = items.card;
+        newCard.colour = items.colour;
+        newCard.type = "property";
+        newCard.rent = pf.getRentFromColour(items.colour);
+        newCard.name = "Wild Property";
+        playerObj.properties = pf.addProps(playerObj.properties, [newCard]);
+    })
+
     socket.on("request_new_deck", () => {
         deck = gd.generateDeck();
         socket.emit("receive_new_deck", deck);
@@ -336,21 +346,8 @@ io.on("connection", (socket) => {
             playerObj.money += card.value;
         } else if (card.type === "property") {
             console.log("Type check passed");
-            if (playerObj.properties.filter((p) => p.colour === card.colour && p.cards.length < p.rent.length).length === 0) {
-                const intId = playerObj.properties.filter((p) => p.colour === card.colour).length; // used to differentiate different sets of the same colour
-                // TODO: implement intId elsewhere
-                playerObj.properties.push({
-                    colour: card.colour,
-                    cards: [card],
-                    rent: card.rent,
-                    house: false,
-                    hotel: false,
-                    internalId: intId
-                });
-            } else {
-                playerObj.properties[playerObj.properties.findIndex((p) => p.colour === card.colour && p.cards.length < p.rent.length)].cards.push(card);
-            }
-            playerObj.money += card.value;
+            playerObj.properties = pf.addProps(playerObj.properties, [card]);
+            playerObj.money = getTotalMoney(socket.id);
             playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
         } else if (card.type === "action") {
             console.log("Type check passed");
@@ -481,6 +478,11 @@ io.on("connection", (socket) => {
             }
         } else if (card.type === "wildproperty") {
             console.log("wild property");
+            socket.emit("receive_wildproperty_1", {
+                colours: card.colours,
+                card: card
+            });
+            playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
         } else {
             socket.emit("receive_alert_message", "How did this happen?");
         }
