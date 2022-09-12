@@ -3,7 +3,7 @@
 }
 
 .card {
-    display: flex;
+    display: inline-block;
     height: 220px;
     width: 130px;
     text-align: center;

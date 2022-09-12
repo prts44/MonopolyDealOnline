@@ -606,6 +606,7 @@ io.on("connection", (socket) => {
         playerObj.hand = playerObj.hand.concat(newCards);
         io.to(playerObj.id).emit("receive_hand", playerObj.hand);
         io.to(playerObj.id).emit("receive_alert_message", "It is your turn.");
+        updateClients();
     }
 
     function endTurn() {
@@ -616,6 +617,14 @@ io.on("connection", (socket) => {
         }
         players.find((p) => p.id === turnOrder[currentTurn].id).turn = true;
         startTurn();
+    }
+
+    function updateClients() {
+        players.forEach((plr) => {
+            io.to(plr.id).emit("receive_client_update", {
+                otherPlayers: players.filter((p) => p.id !== plr.id)
+            });
+        });
     }
 });
 

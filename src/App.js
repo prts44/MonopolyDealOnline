@@ -1,6 +1,7 @@
 import GameBoard from './components/GameBoard.js';
 import CardSelectMenu from './components/CardSelectMenu.js';
 import SelectionMenu from './components/SelectionMenu.js';
+import PlayerDisplay from './components/PlayerDisplay.js';
 import Hand from './components/Hand.js';
 import io from 'socket.io-client';
 import { useEffect, useState, useRef } from 'react';
@@ -14,7 +15,8 @@ function App() {
     //  but they have to be here as the "parent" for all other components
 
     const [hand, setHand] = useState([]);
-    const [gameState, setGameState] = useState(null);
+    const [otherPlayers, setOtherPlayers] = useState([]);
+    const [otherPlayersDisplay, setOtherPlayersDisplay] = useState([]);
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
     const [popupContent, setPopupContent] = useState(null);
@@ -36,11 +38,11 @@ function App() {
 
     function playCardAsMoney(card) {
         if (checkCardExists(card)) {
-            console.log("Invalid play");
+            socket.emit("send_play_card_as_money", card);
         } else if (card.type === "property" || card.type === "wildproperty") {
             alert("You cannot play a property as money");
         } else {
-            socket.emit("send_play_card_as_money", card);
+            console.log("Invalid play");
         }
     }
 
@@ -61,6 +63,16 @@ function App() {
             setOpen(true);
         }
     }, [popupContent]);
+
+    useEffect(() => {
+        // if anyone knows a better way of doing this please tell me
+        setOtherPlayersDisplay(otherPlayers.map((p) => {
+            return <PlayerDisplay player={p}/>;
+        }));
+        console.log(otherPlayers.map((p) => {
+            return <PlayerDisplay player={p}/>;
+        }));
+    }, [otherPlayers]);
 
     useEffect(() => {
         socket.on("receive_new_deck", (data) => {
@@ -107,7 +119,6 @@ function App() {
         });
 
         socket.on("receive_game_state", (gameState) => {
-            setGameState(gameState);
             console.log(gameState);
         });
 
@@ -446,6 +457,11 @@ function App() {
                 }}/></div>);
         });
 
+        socket.on("receive_client_update", (items) => {
+            // will update all other playerdata when the server says to
+            setOtherPlayers(items.otherPlayers);
+        });
+
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");
@@ -462,7 +478,9 @@ function App() {
 
     return (
         <div id="mainDiv">
-            <GameBoard />
+            <div id="otherPlayers">
+                {otherPlayersDisplay}
+            </div>
             <div id="div1">
                 <h4>These are testing buttons, the game will not work like this</h4>
                 <button onClick={() => {socket.emit("request_new_deck");}}>Generate new deck</button>
@@ -476,7 +494,6 @@ function App() {
                 <button onClick={() => {socket.emit("request_properties");}}>See your properties</button>
                 <button onClick={() => {socket.emit("request_game_state");}}>See the current game state</button>
                 <button onClick={() => {socket.emit("request_enter_game");}}>Enter the game</button>
-                <button onClick={() => {socket.emit("aaaaa");}}>do the thing</button>
                 <input type="number" onChange={(e) => {
                     setTutorId(e.target.value);
                 }}/>
