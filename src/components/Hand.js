@@ -8,28 +8,6 @@ function Hand(props) {
     const [selectedCard, setSelectedCard] = useState(null);
     const key = useRef(0);
 
-    function getCard(card) {
-        if (card.type) {
-            if (card.type === "moneya") {
-
-            } else if (card.type === "renta") {
-
-            } else if (card.type === "wildpropertya") {
-                
-            } else {
-                let cardName = "N/A";
-                if (card.name) {
-                    console.log(card.name);
-                    cardName = card.name;
-                }
-                return (<div>
-                    <input className={style.radioButton} type="radio" value={card} name="hand" id={card.internalId} onClick={() => {setSelectedCard(card)}}/>
-                    <label className={style.card} htmlFor={card.internalId}>{cardName}<br/>Type: {card.type}</label>
-                </div>);
-            }
-        }
-    }
-
     useEffect(() => {
         try {
             let d = props.cards.map((card) => {
