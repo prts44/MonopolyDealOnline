@@ -37,7 +37,7 @@ function Game(props) {
     }
 
     function playCardAsMoney(card) {
-        if (checkCardExists(card) || (card.type === "property" || card.type === "wildproperty")) {
+        if (!checkCardExists(card) || (card.type === "property" || card.type === "wildproperty")) {
             alert("Invalid play");
         } else {
             socket.emit("send_play_card_as_money", card);
