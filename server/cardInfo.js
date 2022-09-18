@@ -76,7 +76,7 @@ const propertyCards = [
         rent: [3, 8],
         qty: 2,
         canHouse: true,
-        names: [""],
+        names: ["Boardwalk", "Park Place"],
         value: 4
     },
     {
@@ -84,7 +84,7 @@ const propertyCards = [
         rent: [2, 4, 7],
         qty: 3,
         canHouse: true,
-        names: [""],
+        names: ["North Carolina Avenue", "Pacific Avenue", "Pennsylvania Avenue"],
         value: 4
     },
     {
@@ -92,7 +92,7 @@ const propertyCards = [
         rent: [1, 2, 3],
         qty: 3,
         canHouse: true,
-        names: [""],
+        names: ["Connecticut Avenue", "Oriental Avenue", "Vermont Avenue"],
         value: 1
     },
     {
@@ -100,7 +100,7 @@ const propertyCards = [
         rent: [1, 3, 5],
         qty: 3,
         canHouse: true,
-        names: [""],
+        names: ["New York Avenue", "St. James Place", "Tennessee Avenue"],
         value: 2
     },
     {
@@ -108,7 +108,7 @@ const propertyCards = [
         rent: [1, 2, 4],
         qty: 3,
         canHouse: true,
-        names: [""],
+        names: ["St. Charles Place", "Virginia Avenue", "States Avenue"],
         value: 2
     },
     {
@@ -116,7 +116,7 @@ const propertyCards = [
         rent: [1, 2, 3, 4],
         qty: 4,
         canHouse: false,
-        names: [""],
+        names: ["Short Line", "B & O Railroad", "Reading Railroad", "Pennsylvania Railroad"],
         value: 2
     },
     {
@@ -124,7 +124,7 @@ const propertyCards = [
         rent: [2, 3, 6],
         qty: 3,
         canHouse: true,
-        names: [""],
+        names: ["Kentucky Avenue", "Indiana Avenue", "Illinois Avenue"],
         value: 3
     },
     {
@@ -132,7 +132,7 @@ const propertyCards = [
         rent: [1, 2],
         qty: 2,
         canHouse: false,
-        names: [""],
+        names: ["Water Works", "Electric Company"],
         value: 2
     },
     {
@@ -140,7 +140,7 @@ const propertyCards = [
         rent: [2, 4, 6],
         qty: 3,
         canHouse: true,
-        names: [""],
+        names: ["Ventnor Avenue", "Marvin Gardens", "Atlantic Avenue"],
         value: 3
     },
 ];

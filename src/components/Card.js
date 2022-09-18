@@ -3,8 +3,11 @@ import style from '../styles/card.module.css';
 // generates the display of a card given a card object
 function Card(props) {
     if (props.card.type) {
-        if (props.card.type === "moneya") {
-
+        if (props.card.type === "money") {
+            return (<span>
+                <input disabled={props.disabled} className={style.radioButton} type="radio" value={props.card} name="hand" id={props.card.internalId} onClick={() => {props.callback(props.card)}}/>
+                <label className={style.card} htmlFor={props.card.internalId}>Type: {props.card.type}<br/>Value: {props.card.value}</label>
+            </span>);
         } else if (props.card.type === "renta") {
 
         } else if (props.card.type === "wildpropertya") {

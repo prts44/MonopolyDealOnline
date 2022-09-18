@@ -39,7 +39,8 @@ module.exports = {
                         rent: card.rent,
                         type: "property",
                         internalId: internalId,
-                        value: card.value
+                        value: card.value,
+                        name: card.names[i]
                     }
                 );
                 internalId++;
