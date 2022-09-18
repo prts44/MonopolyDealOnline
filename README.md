@@ -14,6 +14,7 @@ Unintentional alterations:
 
 Intentional alterations:
 - Cards cannot be played if the circumstances are not correct (original rules state any card played under the wrong circumstances counts as a played card which I personally believe is dumb)
+- It's My Birthday cannot be Just Say No'd (this is like 30% because I don't believe this makes any sense and 70% because of lazyness)
 
 If I ever host this project publicly, expect there to only be one room for games that you can join and anyone can start for now. This is due to some limitations with Socket.io that I didn't notice until it was too late. I would absolutely love to have multiple rooms, but right now the game works best as a self-hosted one with friends. This is something I'd like to fix in the future.
 
@@ -28,7 +29,7 @@ Basically, you need to have two things running:
 Once both are running, all you need to do is go to the url/ip of the client host, and you should be able to play the game from there. Any other players just have to connect to the client. (I have not tested this as of writing this version of the README since the project is not complete)
 
 ## Progress
-70% done.
+85% done.
 
 Cards remaining:
 - None 
@@ -38,7 +39,6 @@ Other things to do:
 - Ability to play a proper game (basically turns and a win check)
 - Hand size check
 - Played pile interactions
-- Display usernames
 
 Extras:
 - New mode featuring custom cards
