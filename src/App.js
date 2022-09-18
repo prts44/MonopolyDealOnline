@@ -1,21 +1,25 @@
 import Game from './Game.js';
-import { Route } from 'react-router-dom';
-import style from './styles/app.module.css';
+import HomePage from './components/HomePage.js';
+import { Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
 
 function App() {
+
+    const [username, setUsername] = useState(null);
+
+    function updateName(name) {
+        setUsername(name);
+    }
+
     return (
-        <div id="container">
-            <div id="logo" className={style.logo}>
-                <h1>Monopoly Deal Online</h1>
+        <>
+            <div>
+                <Routes>
+                    <Route path="/" element={<HomePage callback={updateName}/>} />
+                    <Route path="/play" element={<Game username={username}/>} />
+                </Routes>
             </div>
-            <div id="enterName" className={style.enterName}>
-                <input type="text" placeholder="Enter your name" />
-                <button>Play!</button>
-            </div>
-            <div id="info" className={style.info}>
-                <h1>Test</h1>
-            </div>
-        </div>)
+        </>)
 }
 
 export default App;

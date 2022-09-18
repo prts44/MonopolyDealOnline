@@ -1,3 +1,4 @@
+import GameBoard from './components/GameBoard.js';
 import CardSelectMenu from './components/CardSelectMenu.js';
 import SelectionMenu from './components/SelectionMenu.js';
 import PlayerDisplay from './components/PlayerDisplay.js';
@@ -11,6 +12,8 @@ const socket = io.connect("http://localhost:3001");
 
 function Game(props) {
 
+    // THIS IS A DEBUG VERSION OF THE ACTUAL GAME
+
     // i don't like having all these functions in the main App.js file
     //  but they have to be here as the "parent" for all other components
 
@@ -20,7 +23,10 @@ function Game(props) {
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
     const [popupContent, setPopupContent] = useState(null);
+    const [tutorId, setTutorId] = useState(null);
     const username = useRef(props.username);
+
+    const selectedCards = useRef([]);
 
     // does not actually play the card, just tells the server 
     //  what card the user is trying to play and lets it handle it
@@ -458,8 +464,6 @@ function Game(props) {
             setOtherPlayers(items.otherPlayers);
         });
 
-        socket.emit("request_enter_game", username.current);
-
         return () => {
             socket.off("receive_new_deck");
             socket.off("receive_new_hand");
@@ -483,10 +487,22 @@ function Game(props) {
                     {otherPlayersDisplay}
                 </div>
                 <div id="div1">
+                    <h4>These are testing buttons, the game will not work like this</h4>
+                    <button onClick={() => {socket.emit("request_new_deck");}}>Generate new deck</button>
+                    <button onClick={() => {socket.emit("request_deck");}}>See the full deck</button>
+                    <button onClick={() => {socket.emit("request_new_hand");}}>Deal starting hand</button>
                     <button onClick={() => {socket.emit("request_hand");}}>See your hand</button>
+                    <button onClick={() => {socket.emit("request_card_draw");}}>Draw a card</button>
+                    <button onClick={() => {socket.emit("request_turn");}}>Make it your turn</button>
                     <button onClick={() => {socket.emit("request_money");}}>See your money</button>
                     <button onClick={() => {socket.emit("request_money_pile");}}>See your money pile</button>
                     <button onClick={() => {socket.emit("request_properties");}}>See your properties</button>
+                    <button onClick={() => {socket.emit("request_game_state");}}>See the current game state</button>
+                    <button onClick={() => {socket.emit("request_enter_game");}}>Enter the game</button>
+                    <input type="number" onChange={(e) => {
+                        setTutorId(e.target.value);
+                    }}/>
+                    <button onClick={() => {socket.emit("request_tutor_card", tutorId);}}>Tutor a card</button>
                     <button onClick={() => {socket.emit("request_start_game");}}>Start game</button>
                     <button onClick={() => {socket.emit("request_end_turn");}}>End turn</button>
                 </div>

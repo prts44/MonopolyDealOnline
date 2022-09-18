@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}`);
 
     // only add a player to the game if the client requests
-    socket.on("request_enter_game", () => {
+    socket.on("request_enter_game", (username) => {
         if (gameActive) {
             socket.emit("receive_alert_message", "You can't join an ongoing game.");
         } else if (players.length === 0 || players.filter((p) => p.id === socket.id).length === 0) {
@@ -53,6 +53,7 @@ io.on("connection", (socket) => {
                 moneyPile: [],
                 money: 0,
                 playsRemaining: 0,
+                username: username,
                 turn: false,
                 waiting: false // will be used for JSN chains where the player must wait to see how the other player reacts
             });
