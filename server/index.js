@@ -680,12 +680,30 @@ io.on("connection", (socket) => {
     }
 
     function updateClients() {
+        const winner = checkForWinner();
+        if (winner) {
+            gameActive = false;
+            players.forEach((plr) => {
+                io.to(plr.id).emit("receive_alert_message", winner.username + "has won!");
+            });
+        }
         players.forEach((plr) => {
             io.to(plr.id).emit("receive_client_update", {
                 otherPlayers: players.filter((p) => p.id !== plr.id),
                 playerData: players.find((p) => p.id === plr.id)
             });
         });
+    }
+
+    function checkForWinner() {
+        let winner = false;
+        players.forEach((plr) => {
+            const uniqueFullSets = plr.properties.filter((p) => p.rent.length === p.cards.length && p.internalId === 0);
+            if (uniqueFullSets.length === 3) {
+                winner = plr;
+            }
+        });
+        return winner;
     }
 
     function shuffle(d) {
