@@ -11,6 +11,7 @@ Unintentional alterations:
 - Wild properties cannot be swapped.
 - Full property sets cannot be broken under any circumstances. They are treated as a single unit once completed.
 - All colour wild properties can be played without an existing set
+- Hand size is not limited (this will be implemented but the game is playable without this at the moment)
 
 Intentional alterations:
 - Cards cannot be played if the circumstances are not correct (original rules state any card played under the wrong circumstances counts as a played card which I personally believe is dumb)
