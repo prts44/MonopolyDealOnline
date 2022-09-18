@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
                 playsRemaining: 0,
                 username: username,
                 turn: false,
-                waiting: false // will be used for JSN chains where the player must wait to see how the other player reacts
+                pendingActions: 0 // will be used for JSN chains where the player must wait to see how the other player reacts
             });
         }
     });
@@ -95,6 +95,8 @@ io.on("connection", (socket) => {
 
     socket.on("send_dealbreaker_2", (items) => {
         let victimObj = players.find((p) => p.id === items.id);
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.pendingActions++;
         io.to(items.id).emit("receive_justsayno_1", {
             cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
             nextEvent: ["receive_dealbreaker_3", {
@@ -115,10 +117,13 @@ io.on("connection", (socket) => {
         const stolenProp = victimObj.properties.filter((p) => p.colour === items.colour)[0];
         victimObj.properties = victimObj.properties.filter((p) => p.colour !== items.colour);
         playerObj.properties.push(stolenProp);
+        playerObj.pendingActions--;
     })
 
     socket.on("send_takemoney_2", (items) => {
-        const victimObj = players.find((p) => p.id === items.id);
+        let victimObj = players.find((p) => p.id === items.id);
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.pendingActions++;
         io.to(items.id).emit("receive_justsayno_1", {
             cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
             nextEvent: ["receive_takemoney_3", {
@@ -141,10 +146,13 @@ io.on("connection", (socket) => {
         victimObj.moneyPile = mpf.removeMoney(victimObj.moneyPile, items.money);
         playerObj.money = getTotalMoney(items.playerId);
         victimObj.money = getTotalMoney(socket.id);
+        playerObj.pendingActions--;
     });
 
     socket.on("send_forceddeal_2", (items) => {
-        const victimObj = players.find((p) => p.id === items.victimId);
+        let victimObj = players.find((p) => p.id === items.victimId);
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.pendingActions++;
         io.to(items.victimId).emit("receive_justsayno_1", {
             cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
             nextEvent: ["receive_forceddeal_3", {
@@ -166,10 +174,13 @@ io.on("connection", (socket) => {
         victimObj.properties = pf.addProps(victimObj.properties, [items.given]);
         playerObj.properties = pf.removeProps(playerObj.properties, [items.given]);
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
+        playerObj.pendingActions--;
     });
 
     socket.on("send_slydeal_2", (items) => {
-        const victimObj = players.find((p) => p.id === items.victimId);
+        let victimObj = players.find((p) => p.id === items.victimId);
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.pendingActions++;
         io.to(items.victimId).emit("receive_justsayno_1", {
             cards: victimObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
             nextEvent: ["receive_slydeal_3", {
@@ -188,6 +199,7 @@ io.on("connection", (socket) => {
         let victimObj = players.find((p) => p.id === items.victimId);
         playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
+        playerObj.pendingActions--;
     });
 
     socket.on("send_house_2", (colour) => {
@@ -219,6 +231,7 @@ io.on("connection", (socket) => {
 
     socket.on("send_multirent_2", (colour) => {
         let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.pendingActions += players.length - 1;
         socket.emit("receive_multirent_3", {
             cards: playerObj.hand.filter((p) => p.type === "action" && p.id === "doubleRent"),
             colour: colour
@@ -347,6 +360,11 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("request_remove_pending_action", () => {
+        let playerObj = players.find((p) => p.id === socket.id);
+        playerObj.pendingActions--;
+    });
+
     // i would prefer to not have these functions here but this
     //  is the only way i can think of to have cards played
     //  interact with the game state and get the correct player
@@ -358,6 +376,9 @@ io.on("connection", (socket) => {
             return;
         } else if (playerObj.playsRemaining === 0) {
             socket.emit("receive_alert_message", "You have already played 3 cards this turn.");
+            return;
+        } else if (playerObj.pendingActions > 0) {
+            socket.emit("receive_alert_message", "Wait for the other player(s) to respond to your previous play.");
             return;
         }
         if (card.type === "money") {
@@ -479,6 +500,7 @@ io.on("connection", (socket) => {
                 case "itsMyBirthday":
                     // ask each player to choose cards from their money pile/properties with total value >= 2
                     // if a player doesn't have enough to hit 2, automatically take all their played cards
+                    playerObj.pendingActions += players.length - 1;
                     requestAllMoney(2);
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
                     playerObj.playsRemaining -= 1;
@@ -611,7 +633,12 @@ io.on("connection", (socket) => {
     }
 
     function endTurn() {
-        players.find((p) => p.id === turnOrder[currentTurn].id).turn = false;
+        let playerObj = players.find((p) => p.id === turnOrder[currentTurn].id);
+        if (playerObj.pendingActions > 0) {
+            io.to(playerObj.id).emit("receive_alert_message", "Wait for the other player(s) to respond to your previous play.");
+            return;
+        }
+        playerObj.turn = false;
         currentTurn++;
         if (currentTurn >= players.length) {
             currentTurn = 0;

@@ -36,8 +36,8 @@ function Game(props) {
     }
 
     function playCardAsMoney(card) {
-        if (checkCardExists(card) && (card.type === "property" || card.type === "wildproperty")) {
-            console.log("Invalid play");
+        if (checkCardExists(card) || (card.type === "property" || card.type === "wildproperty")) {
+            alert("Invalid play");
         } else {
             socket.emit("send_play_card_as_money", card);
         }
@@ -384,7 +384,8 @@ function Game(props) {
                         console.log("Even # of JSNs played; proceed with event");
                         socket.emit("request_emit_event_from_server", items.nextEvent[0], items.nextEvent[1]);
                     } else {
-                        console.log("Odd # of JSNs played; proceed with event");
+                        console.log("Odd # of JSNs played; don't proceed with event");
+                        socket.emit("request_remove_pending_action");
                         alert("The other player said no!");
                     }
                     closeModal();
