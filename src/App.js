@@ -11,15 +11,12 @@ function App() {
         setUsername(name);
     }
 
-    return (
-        <>
-            <div>
+    return (<div>
                 <Routes>
                     <Route path="/" element={<HomePage callback={updateName}/>} />
                     <Route path="/play" element={<Game username={username}/>} />
                 </Routes>
-            </div>
-        </>)
+            </div>)
 }
 
 export default App;

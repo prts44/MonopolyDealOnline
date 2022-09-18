@@ -6,6 +6,7 @@ import io from 'socket.io-client';
 import { useEffect, useState, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
+import style from './styles/Game.module.css';
 
 const socket = io.connect("http://localhost:3001");
 
@@ -478,8 +479,8 @@ function Game(props) {
         return <Navigate to="/" replace/>
     } else {
         return (
-            <div id="mainDiv">
-                <div id="otherPlayers">
+            <div id="mainDiv" className={style.container}>
+                <div id="otherPlayers" className={style.playerDisplay}>
                     {otherPlayersDisplay}
                 </div>
                 <div id="div1">

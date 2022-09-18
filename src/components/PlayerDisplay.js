@@ -19,16 +19,27 @@ function PlayerDisplay(props) {
     }
 
     function generateProperties() {
+        let newPropsPile = [];
+        props.player.properties.forEach((p) => {
+            newPropsPile.push(<div>
+                {p.cards.map((c) => {
+                    return <Card disabled={true} card={c} callback={() => {}} />;
+                })}
+            </div>)
+        });
+        setProperties(newPropsPile);
+        console.log("Generated properties piles");
         return;
     }
 
     useEffect(() => {
         generateMoneyPile();
+        generateProperties();
     }, [props]);
 
     return (
         <div className={style.container}>
-            <h3>{props.player.id}</h3>
+            <h3>{props.player.username}</h3>
             <div className={style.cardDisplay}>
                 <div className={style.propsDisplay}>
                     {properties}

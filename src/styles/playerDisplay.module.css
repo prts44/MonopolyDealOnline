@@ -4,24 +4,22 @@
     flex-wrap: wrap;
     min-width: 100%;
     border: 1px solid black;
-    scale: 90%;
 }
 
 .cardDisplay {
     display: flex;
     flex-direction: row;
-    min-width: 100%;
 }
 
 .propsDisplay {
-    display: flex;
+    display: inline-block;
     flex-direction: row;
-    min-width: 30%;
+    min-width: 60%;
     border: 1px solid black;
 }
 
 .moneyDisplay {
     display: inline-block;
-    min-width: 69.8%; /* :) I love CSS!*/
+    min-width: 39.8%; /* :) I love CSS!*/
     border: 1px solid black;
 }

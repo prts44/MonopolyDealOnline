@@ -1,0 +1,13 @@
+.container {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.playerDisplay {
+    max-height: 50%;
+    overflow: scroll;
+    overflow-x: hidden;
+    border-bottom: 1px solid black;
+}

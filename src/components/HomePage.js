@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function HomePage(props) {
     return (
-        <div id="container">
+        <div id="container" className={style.container}>
             <div id="logo" className={style.logo}>
                 <h1>Monopoly Deal Online</h1>
             </div>
