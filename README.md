@@ -30,13 +30,14 @@ Basically, you need to have two things running:
 Once both are running, all you need to do is go to the url/ip of the client host, and you should be able to play the game from there. Any other players just have to connect to the client. (I have not tested this as of writing this version of the README since the project is not complete)
 
 ## Progress
-92% done.
+98% done.
 
 Cards remaining:
 - None 
 
 Other things to do:
 - Better graphics
+- Selection menus show actual cards and not just internal ids
 
 Extras:
 - New mode featuring custom cards
