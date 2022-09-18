@@ -5,6 +5,8 @@ You can find the rules for monopoly deal [here](http://monopolydealrules.com/ind
 
 <b>NOTE:</b>
 
+This is more of a proof of concept/test of my own skill than a super well-made game. I'm fairly happy with how it turned out, but it lacks quite a bit of polish. In the future, I'd like to fix this lack of polish, but this is not a major priority for me at the moment.
+
 The rules differ slightly for this online version due to the way I've implemented it. I would like to remove these differences, but I want to have something that works before that. The scenarios where these differences will matter are somewhat uncommon, but not impossible and will likely impact some games, so I don't want to keep them for very long. Removing these differences will require me to redo most of the property handling as they are edge cases that I failed to notice somewhat late into development. Aside from this, there are some alterations that I'm keeping because I personally prefer them. The list is here:
 
 Unintentional alterations:
@@ -38,6 +40,7 @@ Cards remaining:
 Other things to do:
 - Better graphics
 - Selection menus show actual cards and not just internal ids
+- Polishing the game
 
 Extras:
 - New mode featuring custom cards
