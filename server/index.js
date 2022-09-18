@@ -21,7 +21,7 @@ const io = new Server(server, {
 });
 
 let deck = [];
-let trashPile = [];
+let playedPile = [];
 let players = [];
 let currentTurn = null;
 let turnOrder = [];
@@ -251,6 +251,7 @@ io.on("connection", (socket) => {
         let playerObj = players.find((p) => p.id === items.nextReceiverId);
         let senderObj = players.find((p) => p.id === socket.id); // used to clear the sender's JSN
         senderObj.hand = senderObj.hand.filter((c) => c.internalId !== items.card.internalId);
+        playedPile.push(items.card);
         console.log(items.nextReceiverId);
         io.to(items.nextReceiverId).emit("receive_justsayno_1", {
             cards: playerObj.hand.filter((c) => c.type === "action" && c.id === "justSayNo"), 
@@ -293,6 +294,10 @@ io.on("connection", (socket) => {
 
     socket.on("request_card_draw", () => {
         let playerObj = players.find((p) => p.id === socket.id);
+        if (deck.length < 1) {
+            deck = deck.concat(shuffle(playedPile));
+            playedPile = [];
+        }
         const newCard = dc.drawCard(1, deck);
         playerObj.hand = playerObj.hand.concat(newCard);
         socket.emit("receive_card_draw", {
@@ -420,6 +425,7 @@ io.on("connection", (socket) => {
                     } else {
                         socket.emit("receive_dealbreaker_1", plrsWithFullSet);
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playedPile.push(card);
                         playerObj.playsRemaining -= 1;
                     }
                     break;
@@ -431,6 +437,7 @@ io.on("connection", (socket) => {
                     console.log("Switch case passed");
                     requestIndividualMoney(5);
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    playedPile.push(card);
                     playerObj.playsRemaining -= 1;
                     break;
                 case "forcedDeal":
@@ -447,6 +454,7 @@ io.on("connection", (socket) => {
                             playerObj: playerObj
                         });
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playedPile.push(card);
                         playerObj.playsRemaining -= 1;
                     }
                     break; 
@@ -464,6 +472,7 @@ io.on("connection", (socket) => {
                             playerObj: playerObj
                         });
                         playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                        playedPile.push(card);
                         playerObj.playsRemaining -= 1;
                     }
                     break; 
@@ -503,11 +512,16 @@ io.on("connection", (socket) => {
                     playerObj.pendingActions += players.length - 1;
                     requestAllMoney(2);
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    playedPile.push(card);
                     playerObj.playsRemaining -= 1;
                     break;
                 case "passGo":
+                    if (deck.length < 2) {
+                        deck = deck.concat(shuffle(playedPile));
+                    }
                     playerObj.hand = playerObj.hand.concat(dc.drawCard(2, deck));
                     playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                    playedPile.push(card);
                     playerObj.playsRemaining -= 1;
                     break;
                 default:
@@ -533,6 +547,7 @@ io.on("connection", (socket) => {
                     });
                 }
                 playerObj.hand = playerObj.hand.filter((c) => c.internalId !== card.internalId);
+                playedPile.push(card);
                 playerObj.playsRemaining -= 1;
             }
         } else if (card.type === "wildproperty") {
@@ -625,6 +640,10 @@ io.on("connection", (socket) => {
     function startTurn() {
         let playerObj = players.find((p) => p.id === turnOrder[currentTurn].id);
         playerObj.playsRemaining = 3;
+        if (deck.length < 2) {
+            deck = deck.concat(shuffle(playedPile));
+            playedPile = [];
+        }
         const newCards = dc.drawCard(2, deck);
         playerObj.hand = playerObj.hand.concat(newCards);
         io.to(playerObj.id).emit("receive_hand", playerObj.hand);
@@ -653,6 +672,16 @@ io.on("connection", (socket) => {
                 otherPlayers: players.filter((p) => p.id !== plr.id)
             });
         });
+    }
+
+    function shuffle(d) {
+        for (let i = 0 ; i < 200 ; i++) {
+            const rand1 = Math.floor(Math.random() * d.length);
+            const rand2 = Math.floor(Math.random() * d.length);
+            const temp = deck[rand1];
+            d[rand1] = d[rand2];
+            d[rand2] = temp;
+        }
     }
 });
 
