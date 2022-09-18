@@ -16,8 +16,9 @@ function Game(props) {
     //  but they have to be here as the "parent" for all other components
 
     const [hand, setHand] = useState([]);
+    const [playerData, setPlayerData] = useState(null);
     const [otherPlayers, setOtherPlayers] = useState([]);
-    const [otherPlayersDisplay, setOtherPlayersDisplay] = useState([]);
+    const [playersDisplay, setPlayersDisplay] = useState([]);
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
     const [popupContent, setPopupContent] = useState(null);
@@ -62,14 +63,16 @@ function Game(props) {
     }, [popupContent]);
 
     useEffect(() => {
+        let pList = [...otherPlayers]
+        if (playerData !== null) {
+            pList.unshift(playerData); // ensures client's player is always at the top
+        }
+        console.log(pList);
         // if anyone knows a better way of doing this please tell me
-        setOtherPlayersDisplay(otherPlayers.map((p) => {
+        setPlayersDisplay(pList.map((p) => {
             return <PlayerDisplay player={p}/>;
         }));
-        console.log(otherPlayers.map((p) => {
-            return <PlayerDisplay player={p}/>;
-        }));
-    }, [otherPlayers]);
+    }, [otherPlayers, playerData]);
 
     useEffect(() => {
         socket.on("receive_new_deck", (data) => {
@@ -458,6 +461,7 @@ function Game(props) {
         socket.on("receive_client_update", (items) => {
             // will update all other playerdata when the server says to
             setOtherPlayers(items.otherPlayers);
+            setPlayerData(items.playerData);
         });
 
         socket.emit("request_enter_game", username.current);
@@ -482,7 +486,7 @@ function Game(props) {
         return (
             <div id="mainDiv" className={style.container}>
                 <div id="otherPlayers" className={style.playerDisplay}>
-                    {otherPlayersDisplay}
+                    {playersDisplay}
                 </div>
                 <div id="div1">
                     <button onClick={() => {socket.emit("request_hand");}}>See your hand</button>

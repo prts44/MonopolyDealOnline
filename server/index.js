@@ -57,6 +57,10 @@ io.on("connection", (socket) => {
                 turn: false,
                 pendingActions: 0 // will be used for JSN chains where the player must wait to see how the other player reacts
             });
+            socket.emit("receive_client_update", {
+                otherPlayers: players.filter((p) => p.id !== socket.id),
+                playerData: players.find((p) => p.id === socket.id)
+            });
         }
     });
 
@@ -118,6 +122,7 @@ io.on("connection", (socket) => {
         victimObj.properties = victimObj.properties.filter((p) => p.colour !== items.colour);
         playerObj.properties.push(stolenProp);
         playerObj.pendingActions--;
+        updateClients();
     })
 
     socket.on("send_takemoney_2", (items) => {
@@ -147,6 +152,7 @@ io.on("connection", (socket) => {
         playerObj.money = getTotalMoney(items.playerId);
         victimObj.money = getTotalMoney(socket.id);
         playerObj.pendingActions--;
+        updateClients();
     });
 
     socket.on("send_forceddeal_2", (items) => {
@@ -175,6 +181,7 @@ io.on("connection", (socket) => {
         playerObj.properties = pf.removeProps(playerObj.properties, [items.given]);
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
         playerObj.pendingActions--;
+        updateClients();
     });
 
     socket.on("send_slydeal_2", (items) => {
@@ -200,16 +207,19 @@ io.on("connection", (socket) => {
         playerObj.properties = pf.addProps(playerObj.properties, [items.taken]);
         victimObj.properties = pf.removeProps(victimObj.properties, [items.taken]);
         playerObj.pendingActions--;
+        updateClients();
     });
 
     socket.on("send_house_2", (colour) => {
         let playerObj = players.find((p) => p.id === socket.id);
         playerObj.properties.filter((p) => p.colour === colour)[0].house = true;
+        updateClients();
     });
 
     socket.on("send_hotel_2", (colour) => {
         let playerObj = players.find((p) => p.id === socket.id);
         playerObj.properties.filter((p) => p.colour === colour)[0].hotel = true;
+        updateClients();
     });
 
     socket.on("send_singlerent_2", (colour) => {
@@ -227,6 +237,7 @@ io.on("connection", (socket) => {
         }
         const propSet = playerObj.properties.filter((p) => p.colour === items.colour && p.internalId === 0)[0]; // only use internalId 0 since that will ALWAYS be the highest value one
         requestIndividualMoney(pf.calcRent(propSet) * items.mult);
+        updateClients();
     });
 
     socket.on("send_multirent_2", (colour) => {
@@ -270,6 +281,7 @@ io.on("connection", (socket) => {
         newCard.rent = pf.getRentFromColour(items.colour);
         newCard.name = "Wild Property";
         playerObj.properties = pf.addProps(playerObj.properties, [newCard]);
+        updateClients();
     })
 
     socket.on("request_new_deck", () => {
@@ -562,6 +574,7 @@ io.on("connection", (socket) => {
             socket.emit("receive_alert_message", "How did this happen?");
         }
         socket.emit("receive_hand", playerObj.hand); // update the player's hand after playing
+        updateClients();
     }
 
     function playCardAsMoney(card) {
@@ -669,7 +682,8 @@ io.on("connection", (socket) => {
     function updateClients() {
         players.forEach((plr) => {
             io.to(plr.id).emit("receive_client_update", {
-                otherPlayers: players.filter((p) => p.id !== plr.id)
+                otherPlayers: players.filter((p) => p.id !== plr.id),
+                playerData: players.find((p) => p.id === plr.id)
             });
         });
     }
@@ -682,6 +696,7 @@ io.on("connection", (socket) => {
             d[rand1] = d[rand2];
             d[rand2] = temp;
         }
+        return d;
     }
 });
 

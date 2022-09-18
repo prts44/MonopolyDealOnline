@@ -20,11 +20,13 @@ function HomePage(props) {
                     <br/>
                     <br/>
                     There are three types of cards you can play:
+                </p>
                     <ul>
                         <li>Property: Places the property in your pile. All players can see it. If you already have a property of the same colour placed, it goes in that pile.</li>
                         <li>Money: Places money in your money pile. All players can see it. You may also play action/rent cards as money, but not property cards.</li>
                         <li>Action/Rent: With a few exceptions, these cards allow you to interact with other players' properties and money piles, usually by taking them.</li>
                     </ul>
+                <p>
                     Your objective is to get 3 different coloured full property sets first. 
                 </p>
             </div>
