@@ -30,16 +30,13 @@ Basically, you need to have two things running:
 Once both are running, all you need to do is go to the url/ip of the client host, and you should be able to play the game from there. Any other players just have to connect to the client. (I have not tested this as of writing this version of the README since the project is not complete)
 
 ## Progress
-85% done.
+92% done.
 
 Cards remaining:
 - None 
 
 Other things to do:
-- Graphics
-- Ability to play a proper game (basically turns and a win check)
-- Hand size check
-- Played pile interactions
+- Better graphics
 
 Extras:
 - New mode featuring custom cards
